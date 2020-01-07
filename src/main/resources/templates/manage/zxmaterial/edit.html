@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改建材商品管理')" />
+</head>
+<style type="text/css">
+	.homeImg{
+		width:100%;
+		height: 100px;
+		object-fit: contain;
+	}
+	.homeImgDiv{
+		border: 1px solid;
+		margin: 10px 10px;
+		padding: 0px 0px;
+		text-align:center;
+	}
+</style>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-zxmaterial-edit" th:object="${zxMaterial}">
+            <input name="materialId" th:field="*{materialId}" type="hidden">
+            <div class="tabs-container">
+	            <ul class="nav nav-tabs">
+	                <li class="active"><a data-toggle="tab" href="#tab-1" aria-expanded="true">商品详情</a>
+	                </li>
+	                <li class=""><a data-toggle="tab" href="#tab-2" aria-expanded="false">商品图片</a>
+	                </li>
+	            </ul>
+                <div class="tab-content">
+                    <div id="tab-1" class="tab-pane active">
+                        <div class="panel-body">
+                            <div claass="row">
+                            	<div class="col-sm-6">
+                            		<div class="form-group">    
+						                <label class="col-sm-4 control-label">标题：</label>
+						                <div class="col-sm-8">
+						                    <input name="title" class="form-control" type="text" th:field="*{title}" required>
+						                </div>
+						            </div>
+                            	</div>
+                            	<div class="col-sm-6">
+                            		<div class="form-group"> 
+						            	<label class="col-sm-4 control-label"><button type="button" class="btn btn-success btn-sm" id="imgBtn">上传封面</button></label>
+						                <div class="col-sm-8">
+						                	<img id="img" height="70px" th:src="*{imgUrl}">
+						                    <input class="form-control" type="hidden" name="imgUrl" id="imgUrl" th:field="*{imgUrl}"/>
+						                </div>   
+						            </div>
+                            	</div>
+                            </div>
+                           	<div claass="row">
+                            	<div class="col-sm-6">
+                            		<div class="form-group">    
+						                <label class="col-sm-4 control-label">建材类型：</label>
+						                <div class="col-sm-8">
+						                    <select name="type" class="form-control m-b" th:with="type=${@dict.getType('t_material_type')}" required>
+						                    	<option value="">请选择</option>
+						                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{type}"></option>
+						                    </select>
+						                </div>
+						            </div>
+                            	</div>
+                            	<div class="col-sm-6">
+                            		<div class="form-group">    
+						                <label class="col-sm-4 control-label">标签：</label>
+						                <div class="col-sm-8">
+						                    <select name="label" class="form-control m-b" th:with="type=${@dict.getType('t_material_label')}" required>
+						                    	<option value="">请选择</option>
+						                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{label}"></option>
+						                    </select>
+						                </div>
+						            </div>
+                            	</div>
+                            </div>
+                            	
+                           	<div claass="row">
+                            	<div class="col-sm-6">
+                            		<div class="form-group">    
+						                <label class="col-sm-4 control-label">价格：</label>
+						                <div class="col-sm-8">
+						                    <input name="price" class="form-control" type="text" th:field="*{price}" required>
+						                </div>
+						            </div>
+                            	</div>
+                            	<div class="col-sm-6">
+                            		<div class="form-group">    
+						                <label class="col-sm-4 control-label">单位：</label>
+						                <div class="col-sm-8">
+						                    <input name="unit" class="form-control" type="text" th:field="*{unit}" required>
+						                </div>
+						            </div>
+                            	</div>
+                            </div>
+	                            
+                            <div claass="row">
+                            	<div class="col-sm-6">
+                            		<div class="form-group">    
+						                <label class="col-sm-4 control-label">商家：</label>
+						                <div class="col-sm-8">
+						                    <select name="materialStoreId" class="form-control m-b" required>
+						                        <option value="">请选择</option>
+						                        <option th:each="materialStore : ${materialStores}" th:text="${materialStore.storeName}" th:value="${materialStore.materialStoreId}" th:field="*{materialStoreId}"></option>
+						                    </select>
+						                </div>
+						            </div>
+                            	</div>
+                            	<div class="col-sm-6">
+                            	
+                            	</div>
+                            </div>
+                            <div claass="row">
+                            	<div class="col-sm-12">
+                            		<div class="form-group">
+						                <label class="col-sm-2 control-label">商品详情：</label>
+						                <div class="col-sm-10">
+						                    <textarea name="detail" id="detail" class="form-control" style="width: 100%;height: 100%" required>[[*{detail}]]</textarea>
+						                </div>
+						            </div>
+                            	</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div id="tab-2" class="tab-pane ">
+                        <div class="panel-body">
+                            <div class="form-group">
+				            	 <label class="col-sm-2 control-label"><button type="button" class="btn btn-success btn-sm" id="imgsBtn">商品图片</button></label>
+				            	 <div class="col-sm-10" id="imgsDiv" style="height: 400px">
+				            	 	<div class="col-sm-3 homeImgDiv" th:each="zxMaterialImg:${zxMaterial.zxMaterialImgs}">
+				            	 		<img th:src="${zxMaterialImg.detailImgUrl}" class="homeImg"/>
+				            	 		<a onclick="delImg(this)" style="color:red">删除</a>
+							      		<input name="detailImgUrls" th:value="${zxMaterialImg.detailImgUrl}" type="hidden" >
+				            	 	</div>
+				            	 </div>
+				            </div>
+                        </div>
+                    </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: layui-js-css" />
+    <th:block th:include="include :: kindeditor" />
+    <script type="text/javascript">
+        var prefix = ctx + "manage/zxmaterial";
+        $("#form-zxmaterial-edit").validate({
+            focusCleanup: true
+        });
+
+		 //富文本
+	    var ke = KindEditor.create('#detail',{
+			urlType:"domain", //带域名的绝对路径
+			filePostName  : "file",
+			items:itemsWithImg,
+			//指定上传文件请求的url。上传成功后需回传error与url
+			uploadJson : ctx + "common/upload",
+			height: '360px',
+			//上传类型，分别为image、flash、media、file
+			dir : "image",
+			afterChange: function() {
+		        this.sync();
+		    },
+		    afterBlur: function() {
+		        this.sync();
+		    }
+		});
+        layui.use('upload', function(){
+        	var upload = layui.upload;
+        	upload.render({
+			    elem: '#imgBtn'
+			    ,url: ctx + "common/upload"
+			    ,size: 10240
+			    ,accept: 'images'
+			    ,acceptMime:'image/*'
+			    ,before: function(){$.modal.loading("上传中")}
+			    ,done: function(res){
+			      if(res.code == 0){//如果上传成功
+			        $.modal.closeLoading();
+			    	$('#img').attr('src', res.url);
+			      	$('#imgUrl').val(res.url);
+			      }else{ //如果上传失败
+			      	$.modal.closeLoading();
+			      	$.modal.alertWarning("图片上传失败。");
+			      }
+			    }
+			    ,error:function(){
+			    	$.modal.closeLoading();
+			    	$.modal.alertWarning("图片上传失败。");
+			    }
+			});
+			
+			var files;
+        	upload.render({
+			    elem: '#imgsBtn'
+			    ,url: ctx + "common/upload"
+			    ,size: 10240
+			    ,accept: 'images'
+			    ,acceptMime:'image/*'
+			    ,before: function(obj){
+			    	files = obj.pushFile();//将每次选择的文件追加到文件队列,注意上传完成手动删除
+			    	var item = Object.keys(files).length;
+			    	var detailImgNum = $("input[name='detailImgUrls']").length;
+			    	if(detailImgNum + item > 5){
+		    			$.modal.msgWarning("最多上传5张");
+		    			obj.preview(function(index, file, result){
+		    				delete files[index];//手动删除
+		    			});
+		    			return false;
+		    		}else{
+		    			$.modal.loading("上传中");
+		    		}
+			    }
+			    ,multiple:true
+			    ,number:5
+			    ,done: function(res, index, upload){
+			      $.modal.closeLoading();
+			      delete files[index];//上传完成手动删除
+			      if(res.code == 0){//如果上传成功
+			      	var  content = `
+			      		<div class="col-sm-3 homeImgDiv">
+			      			<img src="` +   res.url + `" class="homeImg"/>
+			      			<a onclick="delImg(this)" style="color:red">删除</a>
+			      			<input name="detailImgUrls" value="` + res.url + `" type="hidden" >
+			      		</div>
+			      	`;
+			      	$('#imgsDiv').append(content);
+			      }else{ //如果上传失败
+			      	$.modal.msgError("图片上传失败。");
+			      }
+			    }
+			    ,error:function(index, upload){
+			    	$.modal.closeLoading();
+			    	delete files[index];//手动删除
+			    	$.modal.msgError("图片上传失败。");
+			    }
+			});
+        });
+        
+        function delImg(obj){
+			$(obj).parent().remove();
+		}
+		
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-zxmaterial-edit').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

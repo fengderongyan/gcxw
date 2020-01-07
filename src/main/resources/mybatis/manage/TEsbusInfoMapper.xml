@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.businfo.mapper.TEsbusInfoMapper">
+    
+    <resultMap type="TEsbusInfo" id="TEsbusInfoResult">
+        <result property="id"    column="id"    />
+        <result property="uuId"    column="uu_id"    />
+        <result property="type"    column="type"    />
+        <result property="title"    column="title"    />
+        <result property="introduced"    column="introduced"    />
+        <result property="presentedId"    column="presented_id"    />
+        <result property="presentedDept"    column="presented_dept"    />
+        <result property="presentedDate"    column="presented_date"    />
+        <result property="presentedMobile"    column="presented_mobile"    />
+        <result property="state"    column="state"    />
+        <result property="shDate"    column="sh_date"    />
+        <result property="shOper"    column="sh_oper"    />
+    </resultMap>
+
+    <sql id="selectTEsbusInfoVo">
+        select id, uu_id, type, title, introduced, presented_id, presented_dept, presented_date, presented_mobile, state, sh_date, sh_oper from t_esbus_info
+    </sql>
+
+    <select id="selectTEsbusInfoList" parameterType="TEsbusInfo" resultMap="TEsbusInfoResult">
+        select  a.uu_id, a.id, type, title, introduced, presented_id, d.dept_name presented_dept, date_format(presented_date, '%Y-%m-%d') presented_date, presented_mobile, state, sh_date, sh_oper 
+        from t_esbus_info a
+        left join sys_dept d on a.presented_dept = d.dept_id
+        where 1 = 1  
+        <if test="type != null "> and type = #{type}</if>
+        <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+        <if test="presentedMobile != null  and presentedMobile != ''"> and presented_mobile = #{presentedMobile}</if>
+        <if test="state != null "> and state = #{state}</if>
+        ${params.dataScope}
+    </select>
+    
+    <select id="selectTEsbusInfoById" parameterType="Long" resultMap="TEsbusInfoResult">
+        select  a.uu_id, a.id, type, title, introduced, presented_id, d.dept_name presented_dept, date_format(presented_date, '%Y-%m-%d') presented_date, presented_mobile, state, sh_date, sh_oper 
+        from t_esbus_info a
+        left join sys_dept d on a.presented_dept = d.dept_id
+        where a.id = #{id}
+    </select>
+        
+    <insert id="insertTEsbusInfo" parameterType="TEsbusInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into t_esbus_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uuId != null  and uuId != ''">uu_id,</if>
+            <if test="type != null ">type,</if>
+            <if test="title != null  and title != ''">title,</if>
+            <if test="introduced != null  and introduced != ''">introduced,</if>
+            <if test="presentedId != null  and presentedId != ''">presented_id,</if>
+            <if test="presentedDept != null  and presentedDept != ''">presented_dept,</if>
+            <if test="presentedDate != null ">presented_date,</if>
+            <if test="presentedMobile != null  and presentedMobile != ''">presented_mobile,</if>
+            <if test="state != null ">state,</if>
+            <if test="shDate != null ">sh_date,</if>
+            <if test="shOper != null  and shOper != ''">sh_oper,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uuId != null  and uuId != ''">#{uuId},</if>
+            <if test="type != null ">#{type},</if>
+            <if test="title != null  and title != ''">#{title},</if>
+            <if test="introduced != null  and introduced != ''">#{introduced},</if>
+            <if test="presentedId != null  and presentedId != ''">#{presentedId},</if>
+            <if test="presentedDept != null  and presentedDept != ''">#{presentedDept},</if>
+            <if test="presentedDate != null ">#{presentedDate},</if>
+            <if test="presentedMobile != null  and presentedMobile != ''">#{presentedMobile},</if>
+            <if test="state != null ">#{state},</if>
+            <if test="shDate != null ">#{shDate},</if>
+            <if test="shOper != null  and shOper != ''">#{shOper},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTEsbusInfo" parameterType="TEsbusInfo">
+        update t_esbus_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null ">state = #{state},</if>
+            sh_date = sysdate(),
+            <if test="shOper != null  and shOper != ''">sh_oper = #{shOper},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTEsbusInfoById" parameterType="Long">
+        delete from t_esbus_info where id = #{id}
+    </delete>
+
+    <delete id="deleteTEsbusInfoByIds" parameterType="String">
+        delete from t_esbus_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="selectBanner" parameterType="Long" resultType="pd">
+    	SELECT
+				img_url 
+			FROM
+				t_esbus_banner_info 
+		WHERE
+			uu_id = ( SELECT uu_id FROM t_esbus_info WHERE id = #{id} )
+    </select>
+    
+     <select id="selectBase" parameterType="Long" resultType="pd">
+    	SELECT
+				img_url 
+			FROM
+				t_esbus_img_info 
+		WHERE
+			uu_id = ( SELECT uu_id FROM t_esbus_info WHERE id = #{id} )
+    </select>
+    
+</mapper>

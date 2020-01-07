@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxbannervideo.mapper.ZxBannerVideoMapper">
+    
+    <resultMap type="ZxBannerVideo" id="ZxBannerVideoResult">
+        <result property="zxBannerVideoId"    column="zx_banner_video_id"    />
+        <result property="titleImgUrl"    column="title_img_url"    />
+        <result property="title"    column="title"    />
+        <result property="videoUrl"    column="video_url"    />
+        <result property="detail"    column="detail"    />
+        <result property="videoTime"    column="video_time"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="flagDel"    column="flag_del"    />
+    </resultMap>
+
+    <sql id="selectZxBannerVideoVo">
+        select a.zx_banner_video_id, a.title_img_url, a.title, a.video_url, a.detail, a.video_time, a.status, a.create_by, a.create_time, a.update_by, a.update_time, a.flag_del 
+          from t_zx_banner_video a
+         where a.flag_del = 0
+    </sql>
+
+    <select id="selectZxBannerVideoList" parameterType="ZxBannerVideo" resultMap="ZxBannerVideoResult">
+        <include refid="selectZxBannerVideoVo"/>
+        <if test="title != null  and title != ''"> and a.title like concat('%', #{title}, '%')</if>
+        order by a.status desc, a.create_time desc
+    </select>
+    
+    <select id="selectZxBannerVideoById" parameterType="Long" resultMap="ZxBannerVideoResult">
+        <include refid="selectZxBannerVideoVo"/>
+        and a.zx_banner_video_id = #{zxBannerVideoId}
+    </select>
+        
+    <insert id="insertZxBannerVideo" parameterType="ZxBannerVideo" useGeneratedKeys="true" keyProperty="zxBannerVideoId">
+        insert into t_zx_banner_video
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="titleImgUrl != null  and titleImgUrl != ''">title_img_url,</if>
+            <if test="title != null  and title != ''">title,</if>
+            <if test="videoUrl != null  and videoUrl != ''">video_url,</if>
+            <if test="detail != null  and detail != ''">detail,</if>
+            <if test="videoTime != null">video_time,</if>
+            <if test="status != null ">status,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="titleImgUrl != null  and titleImgUrl != ''">#{titleImgUrl},</if>
+            <if test="title != null  and title != ''">#{title},</if>
+            <if test="videoUrl != null  and videoUrl != ''">#{videoUrl},</if>
+            <if test="detail != null  and detail != ''">#{detail},</if>
+            <if test="videoTime != null">#{videoTime},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxBannerVideo" parameterType="ZxBannerVideo">
+        update t_zx_banner_video
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="titleImgUrl != null  and titleImgUrl != ''">title_img_url = #{titleImgUrl},</if>
+            <if test="title != null  and title != ''">title = #{title},</if>
+            <if test="videoUrl != null  and videoUrl != ''">video_url = #{videoUrl},</if>
+            <if test="detail != null  and detail != ''">detail = #{detail},</if>
+            <if test="videoTime != null">video_time = #{videoTime},</if>
+            <if test="status != null ">status = #{status},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="flagDel != null ">flag_del = #{flagDel},</if>
+        </trim>
+        where zx_banner_video_id = #{zxBannerVideoId}
+    </update>
+
+    <update id="deleteZxBannerVideoById" parameterType="Long">
+        update t_zx_banner_video set flag_del = 1 where zx_banner_video_id = #{zxBannerVideoId}
+    </update>
+
+    <update id="deleteZxBannerVideoByIds" parameterType="String">
+        update t_zx_banner_video set flag_del = 1 where zx_banner_video_id in 
+        <foreach item="zxBannerVideoId" collection="array" open="(" separator="," close=")">
+            #{zxBannerVideoId}
+        </foreach>
+    </update>
+    
+    <update id="changeStatus" parameterType="ZxBannerVideo">
+    	update t_zx_banner_video set status = #{status} where zx_banner_video_id = #{zxBannerVideoId}
+    </update>
+    
+    <select id="selectSelectedXqList" parameterType="Long" resultType="pd">
+    	select b.dept_id deptId, b.dept_name deptName 
+    	  from t_zx_banner_video_dept a left join sys_dept b on a.dept_id = b.dept_id and b.del_flag = 0 and b.status = 0
+    	 where zx_banner_video_id = #{zxBannerVideoId}
+    </select>
+    
+    <delete id="deleteVideoDept" parameterType="pd">
+    	delete from t_zx_banner_video_dept 
+    	 where dept_id in
+    	 <foreach collection="xqList" item="dept" open="(" close=")" separator=",">
+    	 	#{dept.deptId}
+    	 </foreach>
+    	  and zx_banner_video_id = #{zxBannerVideoId}
+    </delete>
+    
+    <insert id="saveXq" parameterType="pd">
+    	insert into t_zx_banner_video_dept
+    		(zx_banner_video_id, dept_id)
+    	values
+    	<foreach collection="deptIds" item="deptId" separator=",">
+    		(#{zxBannerVideoId}, #{deptId})
+    	</foreach>
+    </insert>
+    
+    <select id="checkXqExists" parameterType="Long" resultType="int">
+    	select case when count(1) >= 1 then 1 else 0 end cnt from t_zx_banner_video_dept where zx_banner_video_id = #{zxBannerVideoId}
+    </select>
+    
+    <select id="selectBannerVideo" parameterType="Long" resultMap="ZxBannerVideoResult">
+    	select a.zx_banner_video_id, a.title_img_url, a.title, a.video_url, a.video_time, a.status, a.create_by, a.create_time, a.update_by, a.update_time, a.flag_del 
+          from t_zx_banner_video a left join t_zx_banner_video_dept b on a.zx_banner_video_id = b.zx_banner_video_id and b.dept_id = #{nowDeptId}
+         where a.flag_del = 0
+    	and a.status = 1
+    	order by a.create_time desc limit 1
+    </select>
+</mapper>

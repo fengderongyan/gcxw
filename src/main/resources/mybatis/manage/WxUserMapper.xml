@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.wxuser.mapper.WxUserMapper">
+    <resultMap type="WxUser" id="WxUserResult">
+    	<result property="wxuserId" column="wxuser_id"/>
+    	<result property="openid" column="openid"/>
+    	<result property="name" column="name"/>
+    	<result property="phone" column="phone"/>
+    	<result property="birthday" column="birthday"/>
+    	<result property="nowDeptId" column="now_dept_id"/>
+    	<result property="nowDeptName" column="now_dept_name"/>
+    	<result property="createBy" column="create_by"/>
+    	<result property="createTime" column="create_time"/>
+    	<result property="updateBy" column="update_by"/>
+    	<result property="updateTime" column="update_time"/>
+    </resultMap>
+    
+    <resultMap type="WxUserFloor" id="WxUserFloorResult">
+    	<result property="wxuserFloorId" column="wxuser_floor_id"/>
+    	<result property="openid" column="openid"/>
+    	<result property="deptId" column="dept_id"/>
+    	<result property="isBind" column="is_bind"/>
+    	<result property="buildNum" column="build_num"/>
+    	<result property="unitNum" column="unit_num"/>
+    	<result property="doorNum" column="door_num"/>
+    	<result property="createBy" column="create_by"/>
+    	<result property="createTime" column="create_time"/>
+    	<result property="updateBy" column="update_by"/>
+    	<result property="updateTime" column="update_time"/>
+    </resultMap>
+    
+    <select id="selectWxUserByOpenid" parameterType="String" resultMap="WxUserResult">
+    	select a.wxuser_id, a.openid, a.name, a.phone, a.birthday, a.now_dept_id, b.dept_name now_dept_name
+    	  from t_wxuser a left join sys_dept b on a.now_dept_id = b.dept_id and b.del_flag = 0
+    	 where openid = #{openid}
+    </select>
+    
+    <select id="selectBindFloorByOpenid" parameterType="String"  resultMap="WxUserFloorResult">
+    	select wxuser_floor_id, openid, dept_id, is_bind, build_num, unit_num, door_num
+    	  from t_wxuser_floor
+    	 where openid = #{openid}
+    	   and is_bind = 1
+    </select>
+    	
+    <select id="selectIsBind" parameterType="String" resultType="Integer">
+    	select case when count(1) &gt;= 1 then 1 else 0 end from t_wxuser where openid = #{openid}
+    </select>
+    <insert id="bindDept" parameterType="WxUser">
+    	insert into t_wxuser(openid, now_dept_id, create_time) values (#{openid}, #{nowDeptId}, #{createTime})
+    </insert>
+    <update id="updateWxUser" parameterType="pd">
+    	update t_wxuser 
+    	   set name = #{name}, 
+    	  	   phone = #{phone}, 
+    	  	   birthday = #{birthday}, 
+    	  	   update_time = #{updateTime}
+    	 where openid = #{openid}
+    </update>
+    <insert id="insertWxUserFloor" parameterType="pd">
+    	insert into t_wxuser_floor
+    		(openid, dept_id, is_bind, create_time, build_num, unit_num, door_num)
+    	values
+    		(#{openid}, #{deptId}, #{isBind}, #{createTime}, #{buildNum}, #{unitNum}, #{doorNum})
+    </insert>
+    <select id="selectUserFloorIsExists" parameterType="pd" resultType="Integer">
+    	select case when count(1) &gt;= 1 then 1 else 0 end from t_wxuser_info_apply 
+    	 where openid = #{openid} 
+    	   and dept_id = #{deptId}
+    	   and build_num = #{buildNum}
+    	   and unit_num = #{unitNum}
+    	   and door_num = #{doorNum}
+    	   and apply_status in (0, 1)
+    </select>
+</mapper>

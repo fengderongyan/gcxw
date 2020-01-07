@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.fee.mapper.TXqPushFeeMapper">
+    
+    <resultMap type="TXqPushFee" id="TXqPushFeeResult">
+        <result property="id"    column="id"    />
+        <result property="type"    column="type"    />
+        <result property="fee"    column="fee"    />
+        <result property="feeId"    column="fee_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="buildNum"    column="build_num"    />
+        <result property="unitNum"    column="unit_num"    />
+        <result property="doorNum"    column="door_num"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="pushTime"    column="push_time"    />
+        <result property="outTradeNo"    column="out_trade_no"    />
+        <result property="totalFee"    column="total_fee"    />
+        <result property="timeEnd"    column="time_end"    />
+    </resultMap>
+
+    <sql id="selectTXqPushFeeVo">
+        select id, type, fee, fee_id, dept_id, build_num, unit_num, door_num, start_time, end_time, push_time, out_trade_no, total_fee, time_end from t_xq_push_fee
+    </sql>
+
+    <select id="selectTXqPushFeeList" parameterType="TXqPushFee" resultMap="TXqPushFeeResult">
+        select a.id, type, round(fee / 100, 2) fee, fee_id, d.dept_name dept_id, build_num, unit_num, door_num, start_time, end_time, push_time, out_trade_no, total_fee, time_end 
+        from t_xq_push_fee a
+        left join sys_dept d on a.dept_id = d.dept_id
+        where 1 = 1
+        <if test="type != null "> and type = #{type}</if>
+        <if test="fee != null "> and fee = #{fee}</if>
+        <if test="feeId != null "> and fee_id = #{feeId}</if>
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        <if test="buildNum != null "> and build_num = #{buildNum}</if>
+        <if test="unitNum != null "> and unit_num = #{unitNum}</if>
+        <if test="doorNum != null "> and door_num = #{doorNum}</if>
+        <if test="startTime != null "> and start_time = #{startTime}</if>
+        <if test="endTime != null "> and end_time = #{endTime}</if>
+        <if test="pushTime != null "> and push_time = #{pushTime}</if>
+        <if test="outTradeNo != null  and outTradeNo != ''"> and out_trade_no = #{outTradeNo}</if>
+        <if test="totalFee != null "> and total_fee = #{totalFee}</if>
+        <if test="timeEnd != null  and timeEnd != ''"> and time_end = #{timeEnd}</if>
+        ${params.dataScope}
+        order by push_time desc
+    </select>
+    
+    <select id="selectTXqPushFeeById" parameterType="Long" resultMap="TXqPushFeeResult">
+        select a.id, type, round(fee / 100, 2) fee, fee_id, d.dept_name dept_id, build_num, unit_num, door_num, start_time, end_time, push_time, out_trade_no, round(total_fee / 100, 2) total_fee, time_end 
+        from t_xq_push_fee a
+        left join sys_dept d on a.dept_id = d.dept_id
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTXqPushFee" parameterType="TXqPushFee" useGeneratedKeys="true" keyProperty="id">
+        insert into t_xq_push_fee
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type != null ">type,</if>
+            <if test="fee != null ">fee,</if>
+            <if test="feeId != null ">fee_id,</if>
+            <if test="deptId != null ">dept_id,</if>
+            <if test="buildNum != null ">build_num,</if>
+            <if test="unitNum != null ">unit_num,</if>
+            <if test="doorNum != null ">door_num,</if>
+            <if test="startTime != null ">start_time,</if>
+            <if test="endTime != null ">end_time,</if>
+            <if test="pushTime != null ">push_time,</if>
+            <if test="outTradeNo != null  and outTradeNo != ''">out_trade_no,</if>
+            <if test="totalFee != null ">total_fee,</if>
+            <if test="timeEnd != null  and timeEnd != ''">time_end,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type != null ">#{type},</if>
+            <if test="fee != null ">#{fee},</if>
+            <if test="feeId != null ">#{feeId},</if>
+            <if test="deptId != null ">#{deptId},</if>
+            <if test="buildNum != null ">#{buildNum},</if>
+            <if test="unitNum != null ">#{unitNum},</if>
+            <if test="doorNum != null ">#{doorNum},</if>
+            <if test="startTime != null ">#{startTime},</if>
+            <if test="endTime != null ">#{endTime},</if>
+            <if test="pushTime != null ">#{pushTime},</if>
+            <if test="outTradeNo != null  and outTradeNo != ''">#{outTradeNo},</if>
+            <if test="totalFee != null ">#{totalFee},</if>
+            <if test="timeEnd != null  and timeEnd != ''">#{timeEnd},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTXqPushFee" parameterType="TXqPushFee">
+        update t_xq_push_fee
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="type != null ">type = #{type},</if>
+            <if test="fee != null ">fee = #{fee},</if>
+            <if test="feeId != null ">fee_id = #{feeId},</if>
+            <if test="deptId != null ">dept_id = #{deptId},</if>
+            <if test="buildNum != null ">build_num = #{buildNum},</if>
+            <if test="unitNum != null ">unit_num = #{unitNum},</if>
+            <if test="doorNum != null ">door_num = #{doorNum},</if>
+            <if test="startTime != null ">start_time = #{startTime},</if>
+            <if test="endTime != null ">end_time = #{endTime},</if>
+            <if test="pushTime != null ">push_time = #{pushTime},</if>
+            <if test="outTradeNo != null  and outTradeNo != ''">out_trade_no = #{outTradeNo},</if>
+            <if test="totalFee != null ">total_fee = #{totalFee},</if>
+            <if test="timeEnd != null  and timeEnd != ''">time_end = #{timeEnd},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTXqPushFeeById" parameterType="Long">
+        delete from t_xq_push_fee where id = #{id}
+    </delete>
+
+    <delete id="deleteTXqPushFeeByIds" parameterType="String">
+        delete from t_xq_push_fee where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

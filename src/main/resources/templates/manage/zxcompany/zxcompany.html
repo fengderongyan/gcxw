@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('装修公司管理列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>公司名称：</p>
+                                <input type="text" name="companyName"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="manage:zxcompany:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table" data-mobile-responsive="true"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: sgyjs" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('manage:zxcompany:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('manage:zxcompany:remove')}]];
+        var recNumDatas = [[${@dict.getType('sys_zx_company_recnum')}]];
+        var prefix = ctx + "manage/zxcompany";
+
+        $(function() {
+            var options = {
+            	showToggle:false,
+            	showSearch:false,
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                //exportUrl: prefix + "/export",
+                modalName: "装修公司管理",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'zxCompanyId', 
+                    title : 'ID',
+                    visible: false
+                },
+                {
+                    field : 'companyName', 
+                    align: 'center',
+                    title : '公司名称'
+                },
+                {
+                    field : 'logo', 
+                    title : '品牌logo',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                    	return $.table.imageCommonView(value,'','500px');
+                    }
+                },
+                {
+                    field : 'isMain', 
+                    align: 'center',
+                    title : '首页推荐',
+                    formatter: function(value, row, index) {
+                    	return isMainTools(row);
+                    }
+                },
+                {
+                    field : 'address', 
+                    align: 'center',
+                    title : '公司地址'
+                },
+                {
+                    field : 'recNum', 
+                    title : '推荐指数',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(recNumDatas, value);
+                    }
+                },
+                {
+                    field : 'createTime', 
+                    align: 'center',
+                    title : '创建时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.zxCompanyId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.zxCompanyId + '\')"><i class="fa fa-remove"></i>删除</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="addXq(\'' + row.zxCompanyId + '\')">挂靠小区</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="designerList(\'' + row.zxCompanyId + '\')">设计师列表</a> ');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+        
+        function isMainTools(row) {
+		    if (row.isMain == 0) {
+    			return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="enable(\'' + row.zxCompanyId + '\')"></i> ';
+    		} else {
+    			return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="disable(\'' + row.zxCompanyId + '\')"></i> ';
+    		}
+		}
+		function enable(zxCompanyId){
+			var isExists = sgyjs.doReturnAjax(prefix + "/checkXqExists", {"zxCompanyId": zxCompanyId});
+			if(isExists == 0){
+				$.modal.msgWarning("请选配置挂靠小区");
+				return false;
+			}
+			$.modal.confirm("确认要展示到首页吗？", function() {
+				$.operate.post(prefix + "/changeIsMain", { "zxCompanyId": zxCompanyId, "isMain": 1 });
+		    })
+		}
+		function disable(zxCompanyId){
+			$.modal.confirm("确认从首页下架吗？", function() {
+				$.operate.post(prefix + "/changeIsMain", { "zxCompanyId": zxCompanyId, "isMain": 0 });
+		    })
+		}
+		
+		//挂靠小区
+		function addXq(zxCompanyId){
+			
+			$.modal.openFull("挂靠小区", prefix + "/addXq?zxCompanyId=" + zxCompanyId);
+		}
+		
+		function designerList(zxCompanyId){
+			$.modal.openTab("设计师管理", prefix + "/designerList?zxCompanyId=" + zxCompanyId);
+		}
+    </script>
+</body>
+</html>

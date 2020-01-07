@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('房间列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+        	<div class="col-sm-12 search-collapse">
+                <form id="formId">
+        			<input name="deptId" id="deptId" th:value="${xqFloor.deptId}" type="hidden"/>
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>楼栋号：</p>
+                                <input type="number" name="buildNum"/>
+                            </li>
+                            <li>
+                                <p>单元号：</p>
+                                <input type="number" name="unitNum"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table" data-mobile-responsive="true"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "manage/showhome";
+        $(function() {
+            var options = {
+            	showToggle:false,
+            	showSearch:false,
+                url: prefix + "/xqList",
+                queryParams: queryParams,
+                modalName: "楼栋信息",
+                columns: [{
+                    radio: true
+                },
+                {
+                    field : 'floorId', 
+                    title : '信息ID',
+                    visible: false
+                },
+                {
+                    field : 'buildNum', 
+                    title : '楼栋号'
+                },
+                {
+                    field : 'unitNum', 
+                    title : '单元号'
+                },
+                {
+                    field : 'doorNum', 
+                    title : '房间号'
+                },
+                {
+                    field : 'area', 
+                    title : '面积'
+                },
+                {
+                    field : 'doorType', 
+                    title : '户型'
+                }]
+            };
+            $.table.init(options);
+        });
+        
+        function queryParams(params) {
+			var search = $.table.queryParams(params);
+			search.deptId = $("#deptId").val();
+			return search;
+		}
+		
+		function submitHandler() {
+			var floorId = $.table.selectColumns('floorId');
+			var buildNum = $.table.selectColumns('buildNum');
+			var unitNum = $.table.selectColumns('unitNum');
+			var doorNum = $.table.selectColumns('doorNum');
+			var area = $.table.selectColumns('area');
+			var doorType = $.table.selectColumns('doorType');
+			if ($.common.isEmpty(buildNum)) {
+       			$.modal.alertWarning("请选择房间");
+       			return;
+       		}else{
+       			parent.$('#floorId').val(floorId);
+       			parent.$('#buildNum').val(buildNum);
+       			parent.$('#unitNum').val(unitNum);
+       			parent.$('#doorNum').val(doorNum);
+       			parent.$('#area').val(area);
+       			parent.$('#doorType').val(doorType);
+       			parent.$('#bud').val(buildNum + '-' + unitNum + '-' + doorNum);
+       			$.modal.close();
+       		}
+		}
+    </script>
+</body>
+</html>

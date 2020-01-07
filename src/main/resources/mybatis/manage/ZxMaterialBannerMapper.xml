@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxmaterialbanner.mapper.ZxMaterialBannerMapper">
+    
+    <resultMap type="ZxMaterialBanner" id="ZxMaterialBannerResult">
+        <result property="materialBannerId"    column="material_banner_id"    />
+        <result property="titleImgUrl"    column="title_img_url"    />
+        <result property="title"    column="title"    />
+        <result property="detail"    column="detail"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectZxMaterialBannerVo">
+        select material_banner_id, title_img_url, title, detail, status, create_by, create_time, update_by, update_time from t_zx_material_banner
+    </sql>
+
+    <select id="selectZxMaterialBannerList" parameterType="ZxMaterialBanner" resultMap="ZxMaterialBannerResult">
+        <include refid="selectZxMaterialBannerVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+        </where>
+        order by status desc, create_time desc
+    </select>
+    
+    <select id="selectZxMaterialBannerById" parameterType="Long" resultMap="ZxMaterialBannerResult">
+        <include refid="selectZxMaterialBannerVo"/>
+        where material_banner_id = #{materialBannerId}
+    </select>
+        
+    <insert id="insertZxMaterialBanner" parameterType="ZxMaterialBanner">
+        insert into t_zx_material_banner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="materialBannerId != null ">material_banner_id,</if>
+            <if test="titleImgUrl != null  and titleImgUrl != ''">title_img_url,</if>
+            <if test="title != null  and title != ''">title,</if>
+            <if test="detail != null  and detail != ''">detail,</if>
+            <if test="status != null ">status,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="materialBannerId != null ">#{materialBannerId},</if>
+            <if test="titleImgUrl != null  and titleImgUrl != ''">#{titleImgUrl},</if>
+            <if test="title != null  and title != ''">#{title},</if>
+            <if test="detail != null  and detail != ''">#{detail},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxMaterialBanner" parameterType="ZxMaterialBanner">
+        update t_zx_material_banner
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="titleImgUrl != null  and titleImgUrl != ''">title_img_url = #{titleImgUrl},</if>
+            <if test="title != null  and title != ''">title = #{title},</if>
+            <if test="detail != null  and detail != ''">detail = #{detail},</if>
+            <if test="status != null ">status = #{status},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where material_banner_id = #{materialBannerId}
+    </update>
+
+    <delete id="deleteZxMaterialBannerById" parameterType="Long">
+        delete from t_zx_material_banner where material_banner_id = #{materialBannerId}
+    </delete>
+
+    <delete id="deleteZxMaterialBannerByIds" parameterType="String">
+        delete from t_zx_material_banner where material_banner_id in 
+        <foreach item="materialBannerId" collection="array" open="(" separator="," close=")">
+            #{materialBannerId}
+        </foreach>
+    </delete>
+    <select id="checkXqExists" parameterType="Long" resultType="int">
+    	select case when count(1) >= 1 then 1 else 0 end cnt from t_zx_material_banner_dept where material_banner_id = #{materialBannerId}
+    </select>
+    <update id="changeStatus" parameterType="ZxMaterialBanner">
+    	update t_zx_material_banner set status = #{status} where material_banner_id = #{materialBannerId}
+    </update>
+    <select id="selectSelectedXqList" parameterType="Long" resultType="pd">
+    	select b.dept_id deptId, b.dept_name deptName 
+    	  from t_zx_material_banner_dept a left join sys_dept b on a.dept_id = b.dept_id and b.del_flag = 0 and b.status = 0
+    	 where material_banner_id = #{materialBannerId}
+    </select>
+    
+    <delete id="deleteBannerImgDept" parameterType="pd">
+    	delete from t_zx_material_banner_dept 
+    	 where dept_id in
+    	 <foreach collection="xqList" item="dept" open="(" close=")" separator=",">
+    	 	#{dept.deptId}
+    	 </foreach>
+    	  and material_banner_id = #{materialBannerId}
+    </delete>
+    
+    <insert id="saveXq" parameterType="pd">
+    	insert into t_zx_material_banner_dept
+    		(material_banner_id, dept_id)
+    	values
+    	<foreach collection="deptIds" item="deptId" separator=",">
+    		(#{materialBannerId}, #{deptId})
+    	</foreach>
+    </insert>
+    
+</mapper>

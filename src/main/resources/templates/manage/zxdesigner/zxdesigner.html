@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('设计师管理列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>姓名：</p>
+                                <input type="text" name="name"/>
+                            </li>
+                            <li>
+                                <p>装修公司：</p>
+                                <select name="zxCompanyId" id="zxCompanyId">
+			                		<option value="">全部</option>
+			                        <option th:each="zxCompany : ${zxCompanys}" th:text="${zxCompany.companyName}" th:value="${zxCompany.zxCompanyId}"
+			                        	th:selected="${zxCompany.zxCompanyId == zxCompanyId}"></option>
+			                    </select>
+                            </li>
+                            <li>
+                                <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="manage:zxdesigner:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-success multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="manage:zxdesigner:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="manage:zxdesigner:export">
+                    <i class="fa fa-download"></i> 导出
+                 </a>-->
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table" data-mobile-responsive="true"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('manage:zxdesigner:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('manage:zxdesigner:remove')}]];
+        var sexDatas = [[${@dict.getType('t_sex')}]];
+        var prefix = ctx + "manage/zxdesigner";
+
+        $(function() {
+            var options = {
+            	showToggle:false,
+            	showSearch:false,
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                queryParams: queryParams,
+                modalName: "设计师管理",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'designerId', 
+                    title : 'ID',
+                    visible: false
+                },
+                {
+                    field : 'headImg', 
+                    align: 'center',
+                    title : '头像',
+                    formatter: function(value, row, index) {
+                    	return $.table.imageCommonView(value,'','500px');
+                    }
+                },
+                {
+                    field : 'name', 
+                    align: 'center',
+                    title : '姓名'
+                },
+                {
+                    field : 'zxCompany.companyName', 
+                    align: 'center',
+                    title : '装修公司'
+                },
+                {
+                    field : 'status',
+                    align: 'center', 
+                    title : '首页推荐',
+                    formatter: function(value, row, index) {
+                    	return isMainTools(row);
+                    }
+                },
+                {
+                    field : 'workYear',
+                    align: 'center', 
+                    title : '工作年限'
+                },
+                {
+                    field : 'sex', 
+                    title : '性别',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(sexDatas, value);
+                    }
+                },
+                {
+                    field : 'position', 
+                    align: 'center',
+                    title : '职位'
+                },
+                {
+                    field : 'createTime', 
+                    align: 'center',
+                    title : '创建时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.designerId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.designerId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+        
+        function queryParams(params) {
+			var search = $.table.queryParams(params);
+			search.dictType = $("#zxCompanyId").val();
+			return search;
+		}
+		
+        function isMainTools(row) {
+		    if (row.status == 0) {
+    			return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="enable(\'' + row.designerId + '\')"></i> ';
+    		} else {
+    			return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="disable(\'' + row.designerId + '\')"></i> ';
+    		}
+		}
+		function enable(designerId){
+			$.modal.confirm("确认要展示到首页吗？", function() {
+				$.operate.post(prefix + "/changeStatus", { "designerId": designerId, "status": 1 });
+		    })
+		}
+		function disable(designerId){
+			$.modal.confirm("确认从首页下架吗？", function() {
+				$.operate.post(prefix + "/changeStatus", { "designerId": designerId, "status": 0 });
+		    })
+		}
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxforumreply.mapper.ForumReplyMapper">
+    
+    <resultMap type="ForumReply" id="ForumReplyResult">
+        <result property="forumReplyId"    column="forum_reply_id"    />
+        <result property="forumId"    column="forum_id"    />
+        <result property="replyOpenid"    column="reply_openid"    />
+        <result property="replyHeadImg"    column="reply_head_img"    />
+        <result property="replyNickname"    column="reply_nickname"    />
+        <result property="replyContent"    column="reply_content"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="forumTitle"    column="forum_title"    />
+    </resultMap>
+
+    <sql id="selectForumReplyVo">
+        select forum_reply_id, forum_id, reply_openid, reply_head_img, reply_nickname, reply_content, create_time from t_forum_reply
+    </sql>
+
+    <select id="selectForumReplyList" parameterType="ForumReply" resultMap="ForumReplyResult">
+        select a.forum_reply_id, a.forum_id, a.reply_openid, a.reply_head_img, a.reply_nickname, a.reply_content, a.create_time,
+        	   b.title forum_title
+          from t_forum_reply a left join t_zx_forum b on a.forum_id = b.forum_id
+        <where>
+        	<if test="forumId != null"> and a.forum_id = #{forumId}</if>  
+            <if test="replyNickname != null  and replyNickname != ''"> and a.reply_nickname like concat('%', #{replyNickname}, '%')</if>
+            <if test="replyContent != null  and replyContent != ''"> and a.reply_content like concat('%', #{replyContent}, '%')</if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectForumReplyById" parameterType="Long" resultMap="ForumReplyResult">
+        <include refid="selectForumReplyVo"/>
+        where forum_reply_id = #{forumReplyId}
+    </select>
+        
+    <insert id="insertForumReply" parameterType="ForumReply" useGeneratedKeys="true" keyProperty="forumReplyId">
+        insert into t_forum_reply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="forumId != null ">forum_id,</if>
+            <if test="replyOpenid != null ">reply_openid,</if>
+            <if test="replyHeadImg != null  and replyHeadImg != ''">reply_head_img,</if>
+            <if test="replyNickname != null  and replyNickname != ''">reply_nickname,</if>
+            <if test="replyContent != null  and replyContent != ''">reply_content,</if>
+            <if test="createTime != null ">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="forumId != null ">#{forumId},</if>
+            <if test="replyOpenid != null ">#{replyOpenid},</if>
+            <if test="replyHeadImg != null  and replyHeadImg != ''">#{replyHeadImg},</if>
+            <if test="replyNickname != null  and replyNickname != ''">#{replyNickname},</if>
+            <if test="replyContent != null  and replyContent != ''">#{replyContent},</if>
+            <if test="createTime != null ">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateForumReply" parameterType="ForumReply">
+        update t_forum_reply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="forumId != null ">forum_id = #{forumId},</if>
+            <if test="replyOpenid != null ">reply_openid = #{replyOpenid},</if>
+            <if test="replyHeadImg != null  and replyHeadImg != ''">reply_head_img = #{replyHeadImg},</if>
+            <if test="replyNickname != null  and replyNickname != ''">reply_nickname = #{replyNickname},</if>
+            <if test="replyContent != null  and replyContent != ''">reply_content = #{replyContent},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+        </trim>
+        where forum_reply_id = #{forumReplyId}
+    </update>
+
+    <delete id="deleteForumReplyById" parameterType="Long">
+        delete from t_forum_reply where forum_reply_id = #{forumReplyId}
+    </delete>
+
+    <delete id="deleteForumReplyByIds" parameterType="String">
+        delete from t_forum_reply where forum_reply_id in 
+        <foreach item="forumReplyId" collection="array" open="(" separator="," close=")">
+            #{forumReplyId}
+        </foreach>
+    </delete>
+    
+</mapper>

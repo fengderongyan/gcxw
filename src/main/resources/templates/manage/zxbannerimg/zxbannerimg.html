@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('装修首页banner列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>封面：</p>
+                                <input type="text" name="titleImgUrl"/>
+                            </li>
+                            <li>
+                                <p>标题：</p>
+                                <input type="text" name="title"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="manage:zxbannerimg:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-success multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="manage:zxbannerimg:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="manage:zxbannerimg:export">
+                    <i class="fa fa-download"></i> 导出
+                 </a>-->
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table" data-mobile-responsive="true"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: sgyjs" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('manage:zxbannerimg:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('manage:zxbannerimg:remove')}]];
+        var prefix = ctx + "manage/zxbannerimg";
+
+        $(function() {
+            var options = {
+            	showToggle:false,
+            	showSearch:false,
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                //exportUrl: prefix + "/export",
+                modalName: "装修首页banner",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'zxBannerImgId', 
+                    title : 'ID',
+                    visible: false
+                },
+                {
+                    field : 'titleImgUrl', 
+                    title : '封面',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                    	return $.table.imageCommonView(value,'','500px');
+                    }
+                },
+                {
+                    field : 'title',
+                    align: 'center', 
+                    title : '标题'
+                },
+                {
+                    field : 'status', 
+                    align: 'center',
+                    title : '首页展示',
+                    formatter: function(value, row, index) {
+                    	return statusTools(row);
+                    }
+                },
+                {
+                    field : 'createTime', 
+                    align: 'center',
+                    title : '创建时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.zxBannerImgId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.zxBannerImgId + '\')"><i class="fa fa-remove"></i>删除</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="addXq(\'' + row.zxBannerImgId + '\')">挂靠小区</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+        
+        function statusTools(row) {
+		    if (row.status == 0) {
+    			return '<i class=\"fa fa-toggle-off text-info fa-2x\" onclick="enable(\'' + row.zxBannerImgId + '\')"></i> ';
+    		} else {
+    			return '<i class=\"fa fa-toggle-on text-info fa-2x\" onclick="disable(\'' + row.zxBannerImgId + '\')"></i> ';
+    		}
+		}
+		function enable(zxBannerImgId){
+			var isExists = sgyjs.doReturnAjax(prefix + "/checkXqExists", {"zxBannerImgId": zxBannerImgId});
+			if(isExists == 0){
+				$.modal.msgWarning("请选配置挂靠小区");
+				return false;
+			}
+			$.modal.confirm("确认要展示到首页吗？", function() {
+				$.operate.post(prefix + "/changeStatus", { "zxBannerImgId": zxBannerImgId, "status": 1 });
+		    })
+		}
+		function disable(zxBannerVideoId){
+			$.modal.confirm("确认从首页下架吗？", function() {
+				$.operate.post(prefix + "/changeStatus", { "zxBannerImgId": zxBannerImgId, "status": 0 });
+		    })
+		}
+		
+		//挂靠小区
+		function addXq(zxBannerImgId){
+			
+			$.modal.openFull("挂靠小区", prefix + "/addXq?zxBannerImgId=" + zxBannerImgId);
+		}
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.gzh.gzhuser.mapper.TGzhUserMapper">
+    
+    <resultMap type="TGzhUser" id="TGzhUserResult">
+        <result property="id"    column="id"    />
+        <result property="subscribe"    column="subscribe"    />
+        <result property="openid"    column="openid"    />
+        <result property="nickname"    column="nickname"    />
+        <result property="sex"    column="sex"    />
+        <result property="city"    column="city"    />
+        <result property="country"    column="country"    />
+        <result property="province"    column="province"    />
+        <result property="headimgurl"    column="headimgurl"    />
+        <result property="wxType"    column="wx_type"    />
+        <result property="wxTypeName"    column="wx_type_name"    />
+        <result property="wxDept"    column="wx_dept"    />
+        <result property="wxDeptName"    column="wx_dept_name"    />
+    </resultMap>
+
+    <sql id="selectTGzhUserVo">
+        select id, subscribe, openid, nickname, sex, city, country, province, headimgurl, wx_type, wx_dept,
+        (select GROUP_CONCAT(dict_label) from sys_dict_data where dict_type = 'sys_wx_type' and FIND_IN_SET(dict_sort,t_gzh_user.wx_type)  ) wx_type_name,
+        (select GROUP_CONCAT(dept_name)  from sys_dept where FIND_IN_SET(dept_id,t_gzh_user.wx_dept)  )  wx_dept_name
+        from t_gzh_user
+    </sql>
+
+    <select id="selectTGzhUserList" parameterType="TGzhUser" resultMap="TGzhUserResult">
+        select id, subscribe, openid, nickname, sex, city, country, province, headimgurl, wx_type, wx_dept,
+        (select GROUP_CONCAT(dict_label) from sys_dict_data where dict_type = 'sys_wx_type' and FIND_IN_SET(dict_sort,t_gzh_user.wx_type)  ) wx_type_name,
+        (select GROUP_CONCAT(dept_name)  from sys_dept where FIND_IN_SET(dept_id,t_gzh_user.wx_dept)  )  wx_dept_name
+        from t_gzh_user
+        <where>  
+            <if test="nickname != null  and nickname != ''"> and nickname like concat('%', #{nickname}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectTGzhUserById" parameterType="Long" resultMap="TGzhUserResult">
+        <include refid="selectTGzhUserVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTGzhUser" parameterType="TGzhUser" useGeneratedKeys="true" keyProperty="id">
+        insert into t_gzh_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="subscribe != null  and subscribe != ''">subscribe,</if>
+            <if test="openid != null  and openid != ''">openid,</if>
+            <if test="nickname != null  and nickname != ''">nickname,</if>
+            <if test="sex != null  and sex != ''">sex,</if>
+            <if test="city != null  and city != ''">city,</if>
+            <if test="country != null  and country != ''">country,</if>
+            <if test="province != null  and province != ''">province,</if>
+            <if test="headimgurl != null  and headimgurl != ''">headimgurl,</if>
+            <if test="wxType != null  and wxType != ''">wx_type,</if>
+            <if test="wxDept != null  and wxDept != ''">wx_dept,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="subscribe != null  and subscribe != ''">#{subscribe},</if>
+            <if test="openid != null  and openid != ''">#{openid},</if>
+            <if test="nickname != null  and nickname != ''">#{nickname},</if>
+            <if test="sex != null  and sex != ''">#{sex},</if>
+            <if test="city != null  and city != ''">#{city},</if>
+            <if test="country != null  and country != ''">#{country},</if>
+            <if test="province != null  and province != ''">#{province},</if>
+            <if test="headimgurl != null  and headimgurl != ''">#{headimgurl},</if>
+            <if test="wxType != null  and wxType != ''">#{wxType},</if>
+            <if test="wxDept != null  and wxDept != ''">#{wxDept},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTGzhUser" parameterType="TGzhUser">
+        update t_gzh_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="subscribe != null  and subscribe != ''">subscribe = #{subscribe},</if>
+            <if test="openid != null  and openid != ''">openid = #{openid},</if>
+            <if test="nickname != null  and nickname != ''">nickname = #{nickname},</if>
+            <if test="sex != null  and sex != ''">sex = #{sex},</if>
+            <if test="city != null  and city != ''">city = #{city},</if>
+            <if test="country != null  and country != ''">country = #{country},</if>
+            <if test="province != null  and province != ''">province = #{province},</if>
+            <if test="headimgurl != null  and headimgurl != ''">headimgurl = #{headimgurl},</if>
+            <if test="wxType != null  and wxType != ''">wx_type = #{wxType},</if>
+            <if test="wxDept != null  and wxDept != ''">wx_dept = #{wxDept},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTGzhUserById" parameterType="Long">
+        delete from t_gzh_user where id = #{id}
+    </delete>
+
+    <delete id="deleteTGzhUserByIds" parameterType="String">
+        delete from t_gzh_user where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <!-- 清空临时表 -->
+    <delete id="deleteAllLsUser">
+    	delete from ls_gzh_user where 1 = 1
+    </delete>
+    <!-- 插入临时表 -->
+    <insert id="insertLsGzhUser" parameterType="TGzhUser" useGeneratedKeys="true" keyProperty="id">
+        insert into ls_gzh_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="subscribe != null  and subscribe != ''">subscribe,</if>
+            <if test="openid != null  and openid != ''">openid,</if>
+            <if test="nickname != null  and nickname != ''">nickname,</if>
+            <if test="sex != null  and sex != ''">sex,</if>
+            <if test="city != null  and city != ''">city,</if>
+            <if test="country != null  and country != ''">country,</if>
+            <if test="province != null  and province != ''">province,</if>
+            <if test="headimgurl != null  and headimgurl != ''">headimgurl,</if>
+            <if test="wxType != null  and wxType != ''">wx_type,</if>
+            <if test="wxDept != null  and wxDept != ''">wx_dept,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="subscribe != null  and subscribe != ''">#{subscribe},</if>
+            <if test="openid != null  and openid != ''">#{openid},</if>
+            <if test="nickname != null  and nickname != ''">#{nickname},</if>
+            <if test="sex != null  and sex != ''">#{sex},</if>
+            <if test="city != null  and city != ''">#{city},</if>
+            <if test="country != null  and country != ''">#{country},</if>
+            <if test="province != null  and province != ''">#{province},</if>
+            <if test="headimgurl != null  and headimgurl != ''">#{headimgurl},</if>
+            <if test="wxType != null  and wxType != ''">#{wxType},</if>
+            <if test="wxDept != null  and wxDept != ''">#{wxDept},</if>
+         </trim>
+    </insert>
+    <!-- 更新真实表 -->
+    <update id="updateTGzhUserByLs">
+    	<!-- 删除不存在 -->
+    	DELETE 
+		FROM
+			t_gzh_user 
+		WHERE
+			t_gzh_user.openid NOT IN ( SELECT openid FROM ls_gzh_user );
+    	
+    	<!-- 更新已存在 -->
+    	UPDATE t_gzh_user, ls_gzh_user 
+		SET t_gzh_user.city = ls_gzh_user.city,
+				t_gzh_user.country = ls_gzh_user.country,
+				t_gzh_user.headimgurl = ls_gzh_user.headimgurl,
+				t_gzh_user.nickname = ls_gzh_user.nickname,
+				t_gzh_user.province = ls_gzh_user.province,
+				t_gzh_user.sex = ls_gzh_user.sex
+		WHERE
+			t_gzh_user.openid = ls_gzh_user.openid;
+    	
+    	<!-- 插入不存在 -->
+    	INSERT INTO t_gzh_user ( openid, nickname, sex, city, country, province, headimgurl ) SELECT
+		openid,
+		nickname,
+		sex,
+		city,
+		country,
+		province,
+		headimgurl 
+		FROM
+			ls_gzh_user 
+		WHERE
+			openid NOT IN ( SELECT openid FROM t_gzh_user )
+    </update>
+    
+</mapper>

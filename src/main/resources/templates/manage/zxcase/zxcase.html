@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('装修案例列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>装修公司：</p>
+                                <select name="companyId" id="companyId" onchange="companyChange()">
+                                    <option value="">所有</option>
+                                    <option th:each="company : ${companyList}" th:text="${company.companyName}" th:value="${company.zxCompanyId}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <p>设计师：</p>
+                                <select name="designerId" id="designerId">
+                                    <option value="">所有</option>
+                                </select>
+                            </li>
+                            <li>
+                                <p>标题：</p>
+                                <input type="text" name="title"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="manage:zxcase:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-success multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="manage:zxcase:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table" data-mobile-responsive="true"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: sgyjs" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('manage:zxcase:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('manage:zxcase:remove')}]];
+        var prefix = ctx + "manage/zxcase";
+
+        $(function() {
+            var options = {
+            	showToggle:false,
+            	showSearch:false,
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                //exportUrl: prefix + "/export",
+                modalName: "装修案例",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'caseId', 
+                    title : 'ID',
+                    visible: false
+                },
+                {
+                    field : 'companyName', 
+                    align: 'center',
+                    title : '装修公司'
+                },
+                {
+                    field : 'designerName', 
+                    align: 'center',
+                    title : '设计师'
+                },
+                {
+                    field : 'title', 
+                    align: 'center',
+                    title : '标题'
+                },
+                {
+                    field : 'content', 
+                    align: 'center',
+                    title : '介绍',
+                    formatter: function(value, row, index) {
+                    	return $.table.tooltip(value);
+                    }
+                },
+                {
+                    field : 'createTime', 
+                    align: 'center',
+                    title : '创建时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.caseId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-success btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.caseId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+        
+        function companyChange(){
+        	var companyId = $("#companyId").val();
+        	if($.common.isEmpty(companyId)){
+        		$("#designerId").html('<option value="">所有</option>');
+        	}else{
+        		var designerList = sgyjs.doReturnAjax(prefix + "/getDesignerList", {"companyId": companyId});
+        		$("#designerId").html('<option value="">所有</option>');
+        		$.each(designerList, function(i, designer){
+					$("#designerId").append("<option value="+designer.designerId+">"+designer.name+"</option>");
+				});
+        	}
+        }
+    </script>
+</body>
+</html>

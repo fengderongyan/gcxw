@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.materialstore.mapper.ZxMaterialStoreMapper">
+    
+    <resultMap type="ZxMaterialStore" id="ZxMaterialStoreResult">
+        <result property="materialStoreId"    column="material_store_id"    />
+        <result property="storeName"    column="store_name"    />
+        <result property="address"    column="address"    />
+        <result property="lxrName"    column="lxr_name"    />
+        <result property="lxrPhone"    column="lxr_phone"    />
+        <result property="zyfw"    column="zyfw"    />
+        <result property="detail"    column="detail"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectZxMaterialStoreVo">
+        select material_store_id, store_name, address, lxr_name, lxr_phone, zyfw, detail, create_by, create_time, update_by, update_time from t_zx_material_store
+    </sql>
+
+    <select id="selectZxMaterialStoreList" parameterType="ZxMaterialStore" resultMap="ZxMaterialStoreResult">
+        <include refid="selectZxMaterialStoreVo"/>
+        <where>  
+            <if test="storeName != null  and storeName != ''"> and store_name like concat('%', #{storeName}, '%')</if>
+            <if test="lxrName != null  and lxrName != ''"> and lxr_name like concat('%', #{lxrName}, '%')</if>
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectZxMaterialStoreById" parameterType="Long" resultMap="ZxMaterialStoreResult">
+        <include refid="selectZxMaterialStoreVo"/>
+        where material_store_id = #{materialStoreId}
+    </select>
+        
+    <insert id="insertZxMaterialStore" parameterType="ZxMaterialStore" useGeneratedKeys="true" keyProperty="materialStoreId">
+        insert into t_zx_material_store
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="storeName != null  and storeName != ''">store_name,</if>
+            <if test="address != null  and address != ''">address,</if>
+            <if test="lxrName != null  and lxrName != ''">lxr_name,</if>
+            <if test="lxrPhone != null  and lxrPhone != ''">lxr_phone,</if>
+            <if test="zyfw != null  and zyfw != ''">zyfw,</if>
+            <if test="detail != null  and detail != ''">detail,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="storeName != null  and storeName != ''">#{storeName},</if>
+            <if test="address != null  and address != ''">#{address},</if>
+            <if test="lxrName != null  and lxrName != ''">#{lxrName},</if>
+            <if test="lxrPhone != null  and lxrPhone != ''">#{lxrPhone},</if>
+            <if test="zyfw != null  and zyfw != ''">#{zyfw},</if>
+            <if test="detail != null  and detail != ''">#{detail},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxMaterialStore" parameterType="ZxMaterialStore">
+        update t_zx_material_store
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="storeName != null  and storeName != ''">store_name = #{storeName},</if>
+            <if test="address != null  and address != ''">address = #{address},</if>
+            <if test="lxrName != null  and lxrName != ''">lxr_name = #{lxrName},</if>
+            <if test="lxrPhone != null  and lxrPhone != ''">lxr_phone = #{lxrPhone},</if>
+            <if test="zyfw != null  and zyfw != ''">zyfw = #{zyfw},</if>
+            <if test="detail != null  and detail != ''">detail = #{detail},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where material_store_id = #{materialStoreId}
+    </update>
+
+    <delete id="deleteZxMaterialStoreById" parameterType="Long">
+        delete from t_zx_material_store where material_store_id = #{materialStoreId}
+    </delete>
+
+    <delete id="deleteZxMaterialStoreByIds" parameterType="String">
+        delete from t_zx_material_store where material_store_id in 
+        <foreach item="materialStoreId" collection="array" open="(" separator="," close=")">
+            #{materialStoreId}
+        </foreach>
+    </delete>
+    
+    <select id="selectSelectedXqList" parameterType="Long" resultType="pd">
+    	select b.dept_id deptId, b.dept_name deptName 
+    	  from t_zx_material_store_dept a left join sys_dept b on a.dept_id = b.dept_id and b.del_flag = 0 and b.status = 0
+    	 where material_store_id = #{materialStoreId}
+    </select>
+    
+    <delete id="deleteStoreDept" parameterType="pd">
+    	delete from t_zx_material_store_dept 
+    	 where dept_id in
+    	 <foreach collection="xqList" item="dept" open="(" close=")" separator=",">
+    	 	#{dept.deptId}
+    	 </foreach>
+    	  and material_store_id = #{materialStoreId}
+    </delete>
+    
+    <insert id="saveXq" parameterType="pd">
+    	insert into t_zx_material_store_dept
+    		(material_store_id, dept_id)
+    	values
+    	<foreach collection="deptIds" item="deptId" separator=",">
+    		(#{materialStoreId}, #{deptId})
+    	</foreach>
+    </insert>
+    
+</mapper>

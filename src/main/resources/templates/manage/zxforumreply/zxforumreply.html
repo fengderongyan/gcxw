@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('评论管理列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>昵称：</p>
+                                <input type="text" name="replyNickname"/>
+                            </li>
+                            <li>
+                                <p>回复内容：</p>
+                                <input type="text" name="replyContent"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-success btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            </li>
+                        </ul>
+                        <input type="hidden" name="forumId" id="forumId" th:value="${forumId}"/>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="manage:zxforumreply:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table" data-mobile-responsive="true"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('manage:zxforumreply:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('manage:zxforumreply:remove')}]];
+        var prefix = ctx + "manage/zxforumreply";
+
+        $(function() {
+            var options = {
+            	showToggle:false,
+            	showSearch:false,
+                url: prefix + "/list",
+                removeUrl: prefix + "/remove",
+                queryParams: queryParams,
+                modalName: "评论管理",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'forumReplyId', 
+                    title : 'ID',
+                    visible: false
+                },
+                {
+                    field : 'forumTitle', 
+                    align: 'center',
+                    title : '装修日志标题',
+                    formatter: function(value, row, index) {
+		                return '<a href="javascript:void(0)" onclick="selectForumDetail(\'' + row.forumId + '\')">' + value + '</a>';
+		            }
+                },
+                {
+                    field : 'replyHeadImg', 
+                    align: 'center',
+                    title : '评论人头像',
+                    formatter: function(value, row, index) {
+                    	return $.table.imageCommonView(value,'','500px');
+                    }
+                },
+                {
+                    field : 'replyNickname', 
+                    align: 'center',
+                    title : '评论人昵称'
+                },
+                {
+                    field : 'replyContent',
+                    align: 'center', 
+                    title : '评论内容',
+                    formatter: function(value, row, index) {
+                    	return $.table.tooltip(value);
+                    }
+                },
+                {
+                    field : 'createTime', 
+                    align: 'center',
+                    title : '评论时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.forumReplyId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+        function queryParams(params) {
+			var search = $.table.queryParams(params);
+			search.forumId = $("#forumId").val();
+			return search;
+		}
+		
+		function selectForumDetail(forumId){
+			$.modal.openDetail("装修日志详情", ctx + "manage/zxforum/detail/" + forumId);
+		}
+    </script>
+</body>
+</html>

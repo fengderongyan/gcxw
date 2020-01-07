@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增装修日志管理')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-zxforum-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">null：</label>
+                <div class="col-sm-8">
+                    <input name="openid" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">头像：</label>
+                <div class="col-sm-8">
+                    <input name="headImg" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">昵称：</label>
+                <div class="col-sm-8">
+                    <input name="nickname" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">标题：</label>
+                <div class="col-sm-8">
+                    <input name="title" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">内容：</label>
+                <div class="col-sm-8">
+                    <textarea name="content" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">阅读人数：</label>
+                <div class="col-sm-8">
+                    <input name="readNum" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script type="text/javascript">
+        var prefix = ctx + "manage/zxforum"
+        $("#form-zxforum-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-zxforum-add').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxbannerimg.mapper.ZxBannerImgMapper">
+    
+    <resultMap type="ZxBannerImg" id="ZxBannerImgResult">
+        <result property="zxBannerImgId"    column="zx_banner_img_id"    />
+        <result property="titleImgUrl"    column="title_img_url"    />
+        <result property="title"    column="title"    />
+        <result property="detail"    column="detail"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="flagDel"    column="flag_del"    />
+    </resultMap>
+
+    <sql id="selectZxBannerImgVo">
+        select zx_banner_img_id, title_img_url, title, detail, status, create_by, create_time, update_by, update_time, flag_del 
+          from t_zx_banner_img a
+    </sql>
+
+    <select id="selectZxBannerImgList" parameterType="ZxBannerImg" resultMap="ZxBannerImgResult">
+        <include refid="selectZxBannerImgVo"/>
+        <where>  
+        	flag_del = 0
+            <if test="titleImgUrl != null  and titleImgUrl != ''"> and title_img_url = #{titleImgUrl}</if>
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+        </where>
+        order by a.status desc, a.create_time desc
+    </select>
+    
+    <select id="selectZxBannerImgById" parameterType="Long" resultMap="ZxBannerImgResult">
+        <include refid="selectZxBannerImgVo"/>
+        where zx_banner_img_id = #{zxBannerImgId}
+    </select>
+        
+    <insert id="insertZxBannerImg" parameterType="ZxBannerImg" useGeneratedKeys="true" keyProperty="zxBannerImgId">
+        insert into t_zx_banner_img
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="titleImgUrl != null  and titleImgUrl != ''">title_img_url,</if>
+            <if test="title != null  and title != ''">title,</if>
+            <if test="detail != null  and detail != ''">detail,</if>
+            <if test="status != null ">status,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+            <if test="flagDel != null ">flag_del,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="titleImgUrl != null  and titleImgUrl != ''">#{titleImgUrl},</if>
+            <if test="title != null  and title != ''">#{title},</if>
+            <if test="detail != null  and detail != ''">#{detail},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+            <if test="flagDel != null ">#{flagDel},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxBannerImg" parameterType="ZxBannerImg">
+        update t_zx_banner_img
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="titleImgUrl != null  and titleImgUrl != ''">title_img_url = #{titleImgUrl},</if>
+            <if test="title != null  and title != ''">title = #{title},</if>
+            <if test="detail != null  and detail != ''">detail = #{detail},</if>
+            <if test="status != null ">status = #{status},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="flagDel != null ">flag_del = #{flagDel},</if>
+        </trim>
+        where zx_banner_img_id = #{zxBannerImgId}
+    </update>
+
+    <update id="deleteZxBannerImgById" parameterType="Long">
+        update t_zx_banner_img set flag_del = 1 where zx_banner_img_id = #{zxBannerImgId}
+    </update>
+
+    <update id="deleteZxBannerImgByIds" parameterType="String">
+        update t_zx_banner_img set flag_del = 1 where zx_banner_img_id in 
+        <foreach item="zxBannerImgId" collection="array" open="(" separator="," close=")">
+            #{zxBannerImgId}
+        </foreach>
+    </update>
+    
+    <select id="selectSelectedXqList" parameterType="Long" resultType="pd">
+    	select b.dept_id deptId, b.dept_name deptName 
+    	  from t_zx_banner_img_dept a left join sys_dept b on a.dept_id = b.dept_id and b.del_flag = 0 and b.status = 0
+    	 where zx_banner_img_id = #{zxBannerImgId}
+    </select>
+    
+    <delete id="deleteBannerImgDept" parameterType="pd">
+    	delete from t_zx_banner_img_dept 
+    	 where dept_id in
+    	 <foreach collection="xqList" item="dept" open="(" close=")" separator=",">
+    	 	#{dept.deptId}
+    	 </foreach>
+    	  and zx_banner_img_id = #{zxBannerImgId}
+    </delete>
+    
+    <insert id="saveXq" parameterType="pd">
+    	insert into t_zx_banner_img_dept
+    		(zx_banner_img_id, dept_id)
+    	values
+    	<foreach collection="deptIds" item="deptId" separator=",">
+    		(#{zxBannerImgId}, #{deptId})
+    	</foreach>
+    </insert>
+    
+    <update id="changeStatus" parameterType="ZxBannerImg">
+    	update t_zx_banner_img set status = #{status} where zx_banner_img_id = #{zxBannerImgId}
+    </update>
+    
+    <select id="checkXqExists" parameterType="Long" resultType="int">
+    	select case when count(1) >= 1 then 1 else 0 end cnt from t_zx_banner_img_dept where zx_banner_img_id = #{zxBannerImgId}
+    </select>
+</mapper>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.wxuserapply.mapper.WxUserInfoApplyMapper">
+    <resultMap type="WxUserInfoApply" id="WxUserInfoApplyResult">
+    	<result property="wxuserInfoApplyId" column="wxuser_info_apply_id"/>
+    	<result property="openid" column="openid"/>
+    	<result property="name" column="name"/>
+    	<result property="phone" column="phone"/>
+    	<result property="birthday" column="birthday"/>
+    	<result property="deptId" column="dept_id"/>
+    	<result property="deptName" column="dept_name"/>
+    	<result property="buildNum" column="build_num"/>
+    	<result property="unitNum" column="unit_num"/>
+    	<result property="doorNum" column="door_num"/>
+    	<result property="applyStatus" column="apply_status"/>
+    	<result property="createBy" column="create_by"/>
+    	<result property="createTime" column="create_time"/>
+    	<result property="updateBy" column="update_by"/>
+    	<result property="updateTime" column="update_time"/>
+    	<result property="isAdddept" column="is_adddept"/>
+    </resultMap>
+    
+    <select id="isHasApplyInfo" parameterType="WxUser" resultType="Integer">
+    	select case when count(1) &gt;= 1 then 1 else 0 end 
+    	  from t_wxuser_info_apply
+    	 where openid = #{openid}
+    	   and dept_id = #{nowDeptId}
+    	   and apply_status = 0
+    </select>
+    <insert id="insertWxUserApply" parameterType="pd">
+    	insert into t_wxuser_info_apply
+    		(openid, name, phone, birthday, dept_id, build_num, unit_num, door_num, create_time)
+    	values
+    		(#{openid}, #{name}, #{phone}, #{birthday}, #{deptId}, #{buildNum}, #{unitNum}, #{doorNum}, #{createTime})
+    </insert>
+    
+    <select id="selectWxUserInfoApplyList" parameterType="WxUserInfoApply" resultMap="WxUserInfoApplyResult">
+    	select a.*, b.dept_name from t_wxuser_info_apply a left join sys_dept b on a.dept_id = b.dept_id
+    	where 1 = 1
+    	<if test="deptId != null">
+    		and a.dept_id = #{deptId}
+    	</if>
+    	<if test="name != null and name != ''">
+    		and a.name = #{name}
+    	</if>
+    	<if test="phone != null and phone != ''">
+    		and a.phone = #{phone}
+    	</if>
+    	<!-- 数据范围过滤 -->
+		${params.dataScope}
+		order by apply_status, create_time desc
+    </select>
+    
+    <select id="selectWxUserInfoApplyById" parameterType="Long" resultMap="WxUserInfoApplyResult">
+    	select * from t_wxuser_info_apply where wxuser_info_apply_id =#{wxuserInfoApplyId}
+    </select>
+    <update id="passApply" parameterType="Long">
+    	update t_wxuser_info_apply set apply_status = 1,update_time = sysdate() where wxuser_info_apply_id =#{wxuserInfoApplyId}
+    </update>
+    <update id="saveNopass" parameterType="WxUserInfoApply">
+    	update t_wxuser_info_apply set apply_status = 2, remark = #{remark}, update_time = sysdate() where wxuser_info_apply_id =#{wxuserInfoApplyId}
+    </update>
+</mapper>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('推荐主材banner挂靠小区')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-addXq">
+            <input name="materialBannerId" th:value="${materialBannerId}" type="hidden">
+            <div class="form-group">    
+                <select class="form-control dual_select" name="deptIds" multiple>
+                    <option  th:each="xq: ${xqListWithSelect}" th:value="${xq.deptId}" th:text="${xq.deptName}" th:selected="${xq.flag}"></option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: layui-js-css" />
+    <th:block th:include="include :: bootstrap-duallistbox-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "manage/zxmaterialbanner";
+        $("#form-addXq").validate({
+            focusCleanup: true
+        });
+        
+        $('.dual_select').bootstrapDualListbox({
+	    	nonSelectedListLabel: '未选小区',
+            selectedListLabel: '已选小区',
+            preserveSelectionOnMove: 'moved',
+            moveOnSelect: false,           // 出现一个剪头，表示可以一次选择一个
+            filterTextClear: '展示所有',
+            moveSelectedLabel: "添加",
+            moveAllLabel: '添加所有',
+            removeSelectedLabel: "移除",
+            removeAllLabel: '移除所有',
+            infoText: '共{0}个',
+            infoTextEmpty: '共0个', //当筛选条件为 '' ，且选中/未选中列表无option时显示的内容；默认为'Empty list'
+            showFilterInputs: true,       // 是否带搜索
+            filterPlaceHolder:'查询', //过滤条件input框的placeholder，可自定义内容，默认为'Filter'
+	        selectorMinimalHeight: 250
+	    });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+            	var deptIds = $("select[name='deptIds']").val();
+            	if($.common.isEmpty(deptIds)){
+            		$.modal.msgWarning("请选择挂靠小区");
+            		return false;
+            	}
+                $.operate.save(prefix + "/saveXq", $('#form-addXq').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

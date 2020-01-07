@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxcase.mapper.ZxCaseMapper">
+    
+    <resultMap type="ZxCase" id="ZxCaseResult">
+        <result property="caseId"    column="case_id"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="designerId"    column="designer_id"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="imgUrls"    column="img_urls"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="companyName"    column="company_name"    />
+        <result property="designerName"    column="designer_name"    />
+    </resultMap>
+
+    <sql id="selectZxCaseVo">
+        select case_id, company_id, designer_id, title, content, img_urls, create_time, create_by, update_time, update_by from t_zx_case
+    </sql>
+
+    <select id="selectZxCaseList" parameterType="ZxCase" resultMap="ZxCaseResult">
+        select a.case_id, a.company_id, a.designer_id, a.title, a.img_urls, a.create_time, a.create_by,a.content,
+        	   t1.company_name, t2.name designer_name
+          from t_zx_case a 
+               left join t_zx_company t1 on a.company_id = t1.zx_company_id
+               left join t_zx_designer t2 on a.designer_id = t2.designer_id
+        <where>  
+            <if test="companyId != null "> and a.company_id = #{companyId}</if>
+            <if test="designerId != null "> and a.designer_id = #{designerId}</if>
+            <if test="title != null  and title != ''"> and a.title like concat('%', #{title}, '%')</if>
+        </where>
+        order by a.create_time desc
+    </select>
+    
+    <select id="selectZxCaseById" parameterType="Long" resultMap="ZxCaseResult">
+        <include refid="selectZxCaseVo"/>
+        where case_id = #{caseId}
+    </select>
+        
+    <insert id="insertZxCase" parameterType="ZxCase">
+        insert into t_zx_case
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="caseId != null ">case_id,</if>
+            <if test="companyId != null ">company_id,</if>
+            <if test="designerId != null ">designer_id,</if>
+            <if test="title != null  and title != ''">title,</if>
+            <if test="content != null  and content != ''">content,</if>
+            <if test="imgUrls != null  and imgUrls != ''">img_urls,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="caseId != null ">#{caseId},</if>
+            <if test="companyId != null ">#{companyId},</if>
+            <if test="designerId != null ">#{designerId},</if>
+            <if test="title != null  and title != ''">#{title},</if>
+            <if test="content != null  and content != ''">#{content},</if>
+            <if test="imgUrls != null  and imgUrls != ''">#{imgUrls},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxCase" parameterType="ZxCase">
+        update t_zx_case
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null ">company_id = #{companyId},</if>
+            <if test="designerId != null ">designer_id = #{designerId},</if>
+            <if test="title != null  and title != ''">title = #{title},</if>
+            <if test="content != null  and content != ''">content = #{content},</if>
+            <if test="imgUrls != null  and imgUrls != ''">img_urls = #{imgUrls},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+        </trim>
+        where case_id = #{caseId}
+    </update>
+
+    <delete id="deleteZxCaseById" parameterType="Long">
+        delete from t_zx_case where case_id = #{caseId}
+    </delete>
+
+    <delete id="deleteZxCaseByIds" parameterType="String">
+        delete from t_zx_case where case_id in 
+        <foreach item="caseId" collection="array" open="(" separator="," close=")">
+            #{caseId}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改居家风水')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-zxbannervideo-edit" th:object="${zxBannerVideo}">
+            <input name="zxBannerVideoId" th:field="*{zxBannerVideoId}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><button type="button" class="btn btn-success btn-sm" id="imgBtn">上传封面</button></label>
+                <div class="col-sm-8">
+                    <img id="img" height="70px" th:src="*{titleImgUrl}">
+                    <input class="form-control" th:field="*{titleImgUrl}" type="hidden" name="titleImgUrl" id="titleImgUrl"/>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">标题：</label>
+                <div class="col-sm-8">
+                    <input name="title" th:field="*{title}" class="form-control" type="text" required>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><button type="button" class="btn btn-success btn-sm" id="videoBtn" >上传视频</button></label>
+                <div class="col-sm-8">
+                	<div style="max-height: 300px;max-width: 200px;">
+		            	<video id="videoSrc" controls="controls" oncanplaythrough="myFunction(this)" th:src="*{videoUrl}">
+		            	</video>
+	            	</div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">视频链接</label>
+                <div class="col-sm-8">
+                	<input type="hidden" id="videoTime" name="videoTime" th:field="*{videoTime}"/>
+                    <input name="videoUrl" id="videoUrl" class="form-control" type="text" onblur="videoUrlChange()" th:field="*{videoUrl}" required>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">视频简介</label>
+                <div class="col-sm-8">
+                   <textarea id="detail" name="detail" style="width: 100%;height: 100%">[[${zxBannerVideo.detail}]]</textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: layui-js-css" />
+    <th:block th:include="include :: kindeditor" />
+    <script type="text/javascript">
+        var prefix = ctx + "manage/zxbannervideo";
+        $("#form-zxbannervideo-edit").validate({
+            focusCleanup: true
+        });
+        //富文本
+	    var ke = KindEditor.create('#detail',{
+			urlType:"domain", //带域名的绝对路径
+			filePostName  : "file",
+			items:itemsWithImg,
+			//指定上传文件请求的url。上传成功后需回传error与url
+			uploadJson : ctx + "common/upload",
+			height: '360px',
+			//上传类型，分别为image、flash、media、file
+			dir : "image",
+			afterChange: function() {
+		        this.sync();
+		    },
+		    afterBlur: function() {
+		        this.sync();
+		    }
+		});
+        layui.use('upload', function(){
+        	var upload = layui.upload;
+        	upload.render({
+			    elem: '#imgBtn'
+			    ,url: ctx + "common/upload"
+			    ,size: 10240
+			    ,accept: 'images'
+			    ,acceptMime:'image/*'
+			    ,before: function(){$.modal.loading("上传中")}
+			    ,done: function(res){
+			      if(res.code == 0){//如果上传成功
+			        $.modal.closeLoading();
+			    	$('#img').attr('src', res.url);
+			      	$('#titleImgUrl').val(res.url);
+			      }else{ //如果上传失败
+			      	$.modal.closeLoading();
+			      	$.modal.alertWarning("图片上传失败。");
+			      }
+			    }
+			    ,error:function(){
+			    	$.modal.closeLoading();
+			    	$.modal.alertWarning("图片上传失败。");
+			    }
+			});
+			
+			upload.render({
+			    elem: '#videoBtn'
+			    ,url: ctx + "common/upload"
+			    ,accept: 'video'
+			    //,acceptMime:'video/mp4'
+			    ,before: function(){$.modal.loading("上传中")}
+			    ,done: function(res){
+			    	console.log(res);
+			      if(res.code == 0){//如果上传成功
+			        $.modal.closeLoading();
+			        $("#videoUrl").val(res.url);
+	    			$("#videoSrc").attr("src", res.url);
+			      }else{ //如果上传失败
+			      	$.modal.closeLoading();
+			      	$.modal.alertWarning("视频上传失败1。");
+			      }
+			    }
+			    ,error:function(){
+			    	$.modal.closeLoading();
+			    	$.modal.alertWarning("视频上传失败2。");
+			    }
+			});
+        });
+        
+        function myFunction(ele) {
+			var videoTime = ele.duration;
+			$('#videoTime').val(Math.round(videoTime));
+		}
+		
+		function videoUrlChange(){
+			var videoUrl = $("#videoUrl").val();
+			$("#videoSrc").attr("src", videoUrl);
+		}
+
+        function submitHandler() {
+            if ($.validate.form()) {
+            	if($.common.isEmpty($('#titleImgUrl').val())){
+            		$.modal.msgWarning("请上传封面");
+            		return false;
+            	}
+                $.operate.save(prefix + "/edit", $('#form-zxbannervideo-edit').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

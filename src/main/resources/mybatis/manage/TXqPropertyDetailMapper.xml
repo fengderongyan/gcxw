@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.detail.mapper.TXqPropertyDetailMapper">
+    
+    <resultMap type="TXqPropertyDetail" id="TXqPropertyDetailResult">
+        <result property="id"    column="id"    />
+        <result property="property"    column="property"    />
+        <result property="detailName"    column="detail_name"    />
+        <result property="detailFee"    column="detail_fee"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTXqPropertyDetailVo">
+        select id, property, detail_name, round(detail_fee / 100, 2) detail_fee, remark, create_by, create_time, update_by, update_time from t_xq_property_detail
+    </sql>
+
+    <select id="selectTXqPropertyDetailList" parameterType="TXqPropertyDetail" resultMap="TXqPropertyDetailResult">
+        <include refid="selectTXqPropertyDetailVo"/>
+        <where>  
+            <if test="detailName != null  and detailName != ''"> and detail_name like concat('%', #{detailName}, '%')</if>
+            <if test="property != null  and property != ''"> and property = #{property} </if>
+        </where>
+    </select>
+    
+    <select id="selectTXqPropertyDetailById" parameterType="Long" resultMap="TXqPropertyDetailResult">
+        <include refid="selectTXqPropertyDetailVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTXqPropertyDetail" parameterType="TXqPropertyDetail" useGeneratedKeys="true" keyProperty="id">
+        insert into t_xq_property_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="property != null ">property,</if>
+            <if test="detailName != null  and detailName != ''">detail_name,</if>
+            <if test="detailFee != null ">detail_fee,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="property != null ">#{property},</if>
+            <if test="detailName != null  and detailName != ''">#{detailName},</if>
+            <if test="detailFee != null ">#{detailFee},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTXqPropertyDetail" parameterType="TXqPropertyDetail">
+        update t_xq_property_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="property != null ">property = #{property},</if>
+            <if test="detailName != null  and detailName != ''">detail_name = #{detailName},</if>
+            <if test="detailFee != null ">detail_fee = #{detailFee},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTXqPropertyDetailById" parameterType="Long">
+        delete from t_xq_property_detail where id = #{id}
+    </delete>
+
+    <delete id="deleteTXqPropertyDetailByIds" parameterType="String">
+        delete from t_xq_property_detail where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

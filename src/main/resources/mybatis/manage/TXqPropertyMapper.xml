@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.property.mapper.TXqPropertyMapper">
+    
+    <resultMap type="TXqProperty" id="TXqPropertyResult">
+        <result property="id"    column="id"    />
+        <result property="floorId"    column="floor_id"    />
+        <result property="propertyName"    column="property_name"    />
+        <result property="propertyFee"    column="property_fee"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="state"    column="state"    />
+        <result property="pushDate"    column="push_date"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTXqPropertyVo">
+        select id, floor_id, property_name, round(property_fee / 100, 2) property_fee, date_format(start_time,'%Y-%m-%d') start_time, date_format(end_time,'%Y-%m-%d')end_time, state, push_date, create_by, create_time, update_by, update_time from t_xq_property
+    </sql>
+
+    <select id="selectTXqPropertyList" parameterType="TXqProperty" resultMap="TXqPropertyResult">
+        <include refid="selectTXqPropertyVo"/>
+        <where>  
+            <if test="propertyName != null  and propertyName != ''"> and property_name like concat('%', #{propertyName}, '%')</if>
+            <if test="state != null "> and state = #{state}</if>
+            <if test="floorId != null "> and floor_id = #{floorId}</if>
+        </where>
+    </select>
+    
+    <select id="selectTXqPropertyById" parameterType="Long" resultMap="TXqPropertyResult">
+        <include refid="selectTXqPropertyVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectTXqPropertyByIdScore" parameterType="Long" resultMap="TXqPropertyResult">
+        select id, floor_id, property_name, property_fee, date_format(start_time,'%Y-%m-%d') start_time, date_format(end_time,'%Y-%m-%d')end_time, state, push_date, create_by, create_time, update_by, update_time from t_xq_property
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTXqProperty" parameterType="TXqProperty" useGeneratedKeys="true" keyProperty="id">
+        insert into t_xq_property
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="floorId != null ">floor_id,</if>
+            <if test="propertyName != null  and propertyName != ''">property_name,</if>
+            <if test="propertyFee != null ">property_fee,</if>
+            <if test="startTime != null ">start_time,</if>
+            <if test="endTime != null ">end_time,</if>
+            <if test="state != null ">state,</if>
+            <if test="pushDate != null ">push_date,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="floorId != null ">#{floorId},</if>
+            <if test="propertyName != null  and propertyName != ''">#{propertyName},</if>
+            <if test="propertyFee != null ">#{propertyFee},</if>
+            <if test="startTime != null ">#{startTime},</if>
+            <if test="endTime != null ">#{endTime},</if>
+            <if test="state != null ">#{state},</if>
+            <if test="pushDate != null ">#{pushDate},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTXqProperty" parameterType="TXqProperty">
+        update t_xq_property
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="floorId != null ">floor_id = #{floorId},</if>
+            <if test="propertyName != null  and propertyName != ''">property_name = #{propertyName},</if>
+            <if test="propertyFee != null ">property_fee = #{propertyFee},</if>
+            <if test="startTime != null ">start_time = #{startTime},</if>
+            <if test="endTime != null ">end_time = #{endTime},</if>
+            <if test="state != null ">state = #{state},</if>
+            <if test="pushDate != null ">push_date = #{pushDate},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTXqPropertyById" parameterType="Long">
+        delete from t_xq_property where id = #{id}
+    </delete>
+
+    <delete id="deleteTXqPropertyByIds" parameterType="String">
+        delete from t_xq_property where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 推送物业费信息 -->
+    <update id="PushTXqPropertyById" parameterType="Long">
+    	update t_xq_property set state = 2, push_date = sysdate() where id = #{id}
+    </update>
+    
+    <select id="getSomeInfo" parameterType="Long" resultType="pd">
+    	SELECT
+			dept_id,
+			build_num,
+			unit_num,
+			door_num 
+		FROM
+			t_xq_floor 
+		WHERE
+			floor_id = ( SELECT floor_id FROM t_xq_property WHERE id = #{id} )
+    </select>
+    
+    <insert id="savePush" parameterType="pd">
+    	insert into t_xq_push_fee(type, fee, fee_id, dept_id, build_num, unit_num, door_num, start_time, end_time, push_time)
+		values(1, #{fee}, #{id}, #{dept_id}, #{build_num}, #{unit_num}, #{door_num}, #{startTime}, #{endTime}, sysdate())
+    </insert>
+</mapper>

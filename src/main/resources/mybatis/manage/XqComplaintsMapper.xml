@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.complaints.mapper.XqComplaintsMapper">
+    
+    <resultMap type="XqComplaints" id="XqComplaintsResult">
+        <result property="id"    column="id"    />
+        <result property="type"    column="type"    />
+        <result property="content"    column="content"    />
+        <result property="presentedId"    column="presented_id"    />
+        <result property="presentedDept"    column="presented_dept"    />
+        <result property="presentedDate"    column="presented_date"    />
+        <result property="reply"    column="reply"    />
+        <result property="replyDate"    column="reply_date"    />
+        <result property="state"    column="state"    />
+    </resultMap>
+
+    <sql id="selectXqComplaintsVo">
+        select id, type, content, presented_id, presented_dept, presented_date, reply, reply_date, state from t_xq_complaints
+    </sql>
+
+    <select id="selectXqComplaintsList" parameterType="XqComplaints" resultMap="XqComplaintsResult">
+        select a.id, type, content, presented_id, d.dept_name presented_dept, presented_date, reply, reply_date, state 
+        from t_xq_complaints a 
+        left join sys_dept d on a.presented_dept = d.dept_id
+        where 1 = 1
+            <if test="type != null "> and type = #{type}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="presentedId != null  and presentedId != ''"> and presented_id = #{presentedId}</if>
+            <if test="presentedDept != null  and presentedDept != ''"> and presented_dept = #{presentedDept}</if>
+            <if test="presentedDate != null "> and presented_date = #{presentedDate}</if>
+            <if test="reply != null  and reply != ''"> and reply = #{reply}</if>
+            <if test="replyDate != null "> and reply_date = #{replyDate}</if>
+            <if test="state != null "> and state = #{state}</if>
+         ${params.dataScope}
+    </select>
+    
+    <select id="selectXqComplaintsById" parameterType="Long" resultMap="XqComplaintsResult">
+        select a.id, type, content, presented_id, b.dept_name presented_dept, presented_date, reply, reply_date, state from t_xq_complaints a, sys_dept b
+		where a.presented_dept = b.dept_id
+        and a.id = #{id}
+    </select>
+        
+    <insert id="insertXqComplaints" parameterType="XqComplaints" useGeneratedKeys="true" keyProperty="id">
+        insert into t_xq_complaints
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type != null ">type,</if>
+            <if test="content != null  and content != ''">content,</if>
+            <if test="presentedId != null  and presentedId != ''">presented_id,</if>
+            <if test="presentedDept != null  and presentedDept != ''">presented_dept,</if>
+            <if test="presentedDate != null ">presented_date,</if>
+            <if test="reply != null  and reply != ''">reply,</if>
+            <if test="replyDate != null ">reply_date,</if>
+            <if test="state != null ">state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type != null ">#{type},</if>
+            <if test="content != null  and content != ''">#{content},</if>
+            <if test="presentedId != null  and presentedId != ''">#{presentedId},</if>
+            <if test="presentedDept != null  and presentedDept != ''">#{presentedDept},</if>
+            <if test="presentedDate != null ">#{presentedDate},</if>
+            <if test="reply != null  and reply != ''">#{reply},</if>
+            <if test="replyDate != null ">#{replyDate},</if>
+            <if test="state != null ">#{state},</if>
+         </trim>
+    </insert>
+
+    <update id="updateXqComplaints" parameterType="XqComplaints">
+        update t_xq_complaints
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="type != null ">type = #{type},</if>
+            <if test="content != null  and content != ''">content = #{content},</if>
+            <if test="presentedId != null  and presentedId != ''">presented_id = #{presentedId},</if>
+            <if test="presentedDate != null ">presented_date = #{presentedDate},</if>
+            <if test="reply != null  and reply != ''">reply = #{reply},</if>
+            reply_date = #{replyDate},
+            <if test="state != null ">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteXqComplaintsById" parameterType="Long">
+        delete from t_xq_complaints where id = #{id}
+    </delete>
+
+    <delete id="deleteXqComplaintsByIds" parameterType="String">
+        delete from t_xq_complaints where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

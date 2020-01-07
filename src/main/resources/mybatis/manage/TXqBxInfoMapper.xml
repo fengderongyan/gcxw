@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.bxinfo.mapper.TXqBxInfoMapper">
+    
+    <resultMap type="TXqBxInfo" id="TXqBxInfoResult">
+        <result property="id"    column="id"    />
+        <result property="type"    column="type"    />
+        <result property="appointment"    column="appointment"    />
+        <result property="introduced"    column="introduced"    />
+        <result property="additional"    column="additional"    />
+        <result property="presentedId"    column="presented_id"    />
+        <result property="presentedDept"    column="presented_dept"    />
+        <result property="presentedDate"    column="presented_date"    />
+        <result property="presentedMobile"    column="presented_mobile"    />
+        <result property="state"    column="state"    />
+    </resultMap>
+
+    <sql id="selectTXqBxInfoVo">
+        select id, type, appointment, introduced, additional, presented_id, presented_dept, presented_date, presented_mobile, state from t_xq_bx_info
+    </sql>
+
+    <select id="selectTXqBxInfoList" parameterType="TXqBxInfo" resultMap="TXqBxInfoResult">
+        select a.id, type, appointment, introduced, additional, presented_id,d.dept_name presented_dept, presented_date, presented_mobile, state 
+        from t_xq_bx_info a
+        left join sys_dept d on a.presented_dept = d.dept_id
+        where 1 = 1
+        <if test="type != null "> and type = #{type}</if>
+        <if test="state != null "> and state = #{state}</if>
+        ${params.dataScope}
+    </select>
+    
+    <select id="selectTXqBxInfoById" parameterType="Long" resultMap="TXqBxInfoResult">
+        select a.id, type, appointment, introduced, additional, presented_id,d.dept_name presented_dept, presented_date, presented_mobile, state 
+        from t_xq_bx_info a
+        left join sys_dept d on a.presented_dept = d.dept_id
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTXqBxInfo" parameterType="TXqBxInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into t_xq_bx_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type != null ">type,</if>
+            <if test="appointment != null ">appointment,</if>
+            <if test="introduced != null  and introduced != ''">introduced,</if>
+            <if test="additional != null  and additional != ''">additional,</if>
+            <if test="presentedId != null  and presentedId != ''">presented_id,</if>
+            <if test="presentedDept != null  and presentedDept != ''">presented_dept,</if>
+            <if test="presentedDate != null ">presented_date,</if>
+            <if test="presentedMobile != null  and presentedMobile != ''">presented_mobile,</if>
+            <if test="state != null ">state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type != null ">#{type},</if>
+            <if test="appointment != null ">#{appointment},</if>
+            <if test="introduced != null  and introduced != ''">#{introduced},</if>
+            <if test="additional != null  and additional != ''">#{additional},</if>
+            <if test="presentedId != null  and presentedId != ''">#{presentedId},</if>
+            <if test="presentedDept != null  and presentedDept != ''">#{presentedDept},</if>
+            <if test="presentedDate != null ">#{presentedDate},</if>
+            <if test="presentedMobile != null  and presentedMobile != ''">#{presentedMobile},</if>
+            <if test="state != null ">#{state},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTXqBxInfo" parameterType="TXqBxInfo">
+        update t_xq_bx_info
+            set <if test="state != null ">state = #{state}</if>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTXqBxInfoById" parameterType="Long">
+        delete from t_xq_bx_info where id = #{id}
+    </delete>
+
+    <delete id="deleteTXqBxInfoByIds" parameterType="String">
+        delete from t_xq_bx_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

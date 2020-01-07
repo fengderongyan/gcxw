@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxdesigner.mapper.ZxDesignerMapper">
+    
+    <resultMap type="ZxDesigner" id="ZxDesignerResult">
+        <result property="designerId"    column="designer_id"    />
+        <result property="headImg"    column="head_img"    />
+        <result property="name"    column="name"    />
+        <result property="zxCompanyId"    column="zx_company_id"    />
+        <result property="workYear"    column="work_year"    />
+        <result property="sex"    column="sex"    />
+        <result property="recReason"    column="rec_reason"    />
+        <result property="position"    column="position"    />
+        <result property="status"    column="status"    />
+        <result property="detail"    column="detail"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <association property="zxCompany" column="zx_company_id" javaType="ZxCompany" resultMap="ZxCompanyResult"/>
+    </resultMap>
+	<resultMap type="ZxCompany" id="ZxCompanyResult">
+		<id property="zxCompanyId" column="zx_company_id"/>
+		<result property="companyName" column="company_name"    />
+		<result property="logo" column="logo"    />
+		<result property="address" column="address"    />
+	</resultMap>
+    <sql id="selectZxDesignerVo">
+        select designer_id, head_img, name, zx_company_id, work_year, sex, rec_reason, position, status, detail, create_by, create_time, update_by, update_time 
+          from t_zx_designer a
+    </sql>
+
+    <select id="selectZxDesignerList" parameterType="ZxDesigner" resultMap="ZxDesignerResult">
+        select a.designer_id, a.head_img, a.name, a.zx_company_id, a.work_year, a.sex, a.rec_reason, a.position, a.status,
+               a.create_by, a.create_time, a.update_by, a.update_time,
+               b.company_name, b.logo, b.address
+          from t_zx_designer a left join t_zx_company b on a.zx_company_id = b.zx_company_id
+        <where>  
+            <if test="name != null  and name != ''"> and a.name like concat('%', #{name}, '%')</if>
+            <if test="zxCompanyId != null "> and a.zx_company_id = #{zxCompanyId}</if>
+        </where>
+        order by a.status desc, a.create_time desc
+    </select>
+    
+    <select id="selectZxDesignerById" parameterType="Long" resultMap="ZxDesignerResult">
+        <include refid="selectZxDesignerVo"/>
+        where designer_id = #{designerId}
+    </select>
+        
+    <insert id="insertZxDesigner" parameterType="ZxDesigner">
+        insert into t_zx_designer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="designerId != null ">designer_id,</if>
+            <if test="headImg != null  and headImg != ''">head_img,</if>
+            <if test="name != null  and name != ''">name,</if>
+            <if test="zxCompanyId != null ">zx_company_id,</if>
+            <if test="workYear != null ">work_year,</if>
+            <if test="sex != null ">sex,</if>
+            <if test="recReason != null  and recReason != ''">rec_reason,</if>
+            <if test="position != null  and position != ''">position,</if>
+            <if test="status != null ">status,</if>
+            <if test="detail != null  and detail != ''">detail,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="designerId != null ">#{designerId},</if>
+            <if test="headImg != null  and headImg != ''">#{headImg},</if>
+            <if test="name != null  and name != ''">#{name},</if>
+            <if test="zxCompanyId != null ">#{zxCompanyId},</if>
+            <if test="workYear != null ">#{workYear},</if>
+            <if test="sex != null ">#{sex},</if>
+            <if test="recReason != null  and recReason != ''">#{recReason},</if>
+            <if test="position != null  and position != ''">#{position},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="detail != null  and detail != ''">#{detail},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxDesigner" parameterType="ZxDesigner">
+        update t_zx_designer
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="headImg != null  and headImg != ''">head_img = #{headImg},</if>
+            <if test="name != null  and name != ''">name = #{name},</if>
+            <if test="zxCompanyId != null ">zx_company_id = #{zxCompanyId},</if>
+            <if test="workYear != null ">work_year = #{workYear},</if>
+            <if test="sex != null ">sex = #{sex},</if>
+            <if test="recReason != null  and recReason != ''">rec_reason = #{recReason},</if>
+            <if test="position != null  and position != ''">position = #{position},</if>
+            <if test="status != null ">status = #{status},</if>
+            <if test="detail != null  and detail != ''">detail = #{detail},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where designer_id = #{designerId}
+    </update>
+
+    <delete id="deleteZxDesignerById" parameterType="Long">
+        delete from t_zx_designer where designer_id = #{designerId}
+    </delete>
+
+    <delete id="deleteZxDesignerByIds" parameterType="String">
+        delete from t_zx_designer where designer_id in 
+        <foreach item="designerId" collection="array" open="(" separator="," close=")">
+            #{designerId}
+        </foreach>
+    </delete>
+    
+    <update id="changeStatus" parameterType="ZxDesigner">
+    	update t_zx_designer set status = #{status} where designer_id = #{designerId}
+    </update>
+</mapper>

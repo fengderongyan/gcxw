@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改评论管理')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-zxforumreply-edit" th:object="${forumReply}">
+            <input name="forumReplyId" th:field="*{forumReplyId}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">头像：</label>
+                <div class="col-sm-8">
+                    <input name="replyHeadImg" th:field="*{replyHeadImg}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">昵称：</label>
+                <div class="col-sm-8">
+                    <input name="replyNickname" th:field="*{replyNickname}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">回复内容：</label>
+                <div class="col-sm-8">
+                    <input name="replyContent" th:field="*{replyContent}" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script type="text/javascript">
+        var prefix = ctx + "manage/zxforumreply";
+        $("#form-zxforumreply-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-zxforumreply-edit').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

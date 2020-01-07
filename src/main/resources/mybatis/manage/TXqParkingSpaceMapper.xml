@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.space.mapper.TXqParkingSpaceMapper">
+    
+    <resultMap type="TXqParkingSpace" id="TXqParkingSpaceResult">
+        <result property="id"    column="id"    />
+        <result property="deptId" column="dept_id" />
+        <result property="floorId"    column="floor_id"    />
+        <result property="parkingFee"    column="parking_fee"    />
+        <result property="parkingNum"    column="parking_num"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="state"    column="state"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTXqParkingSpaceVo">
+        select id, floor_id, round(parking_fee / 100, 2) parking_fee, state, parking_num, start_time, end_time, create_by, create_time, update_by, update_time from t_xq_parking_space
+    </sql>
+
+    <select id="selectTXqParkingSpaceList" parameterType="TXqParkingSpace" resultMap="TXqParkingSpaceResult">
+        <include refid="selectTXqParkingSpaceVo"/>
+        <where>  
+            <if test="floorId != null "> and floor_id = #{floorId}</if>
+            <if test="parkingNum != null "> and parking_num = #{parkingNum}</if>
+            <if test="state != null "> and state = #{state}</if>
+        </where>
+    </select>
+    
+    <select id="selectTXqParkingSpaceById" parameterType="Long" resultMap="TXqParkingSpaceResult">
+        <include refid="selectTXqParkingSpaceVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectTXqParkingSpaceByIdScore" parameterType="Long" resultMap="TXqParkingSpaceResult">
+        select id, floor_id, parking_fee, state, parking_num, start_time, end_time, create_by, create_time, update_by, update_time from t_xq_parking_space
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTXqParkingSpace" parameterType="TXqParkingSpace" useGeneratedKeys="true" keyProperty="id">
+        insert into t_xq_parking_space
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="floorId != null ">floor_id,</if>
+            <if test="parkingFee != null ">parking_fee,</if>
+            <if test="parkingNum != null ">parking_num,</if>
+            <if test="startTime != null ">start_time,</if>
+            <if test="endTime != null ">end_time,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="floorId != null ">#{floorId},</if>
+            <if test="parkingFee != null ">#{parkingFee},</if>
+            <if test="parkingNum != null ">#{parkingNum},</if>
+            <if test="startTime != null ">#{startTime},</if>
+            <if test="endTime != null ">#{endTime},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>;
+         <!-- 更新组织信息 -->
+         update t_xq_parking_space, t_xq_floor
+			set t_xq_parking_space.dept_id = t_xq_floor.dept_id
+			where t_xq_parking_space.floor_id = t_xq_floor.floor_id
+			and DATE_FORMAT(t_xq_parking_space.create_time,'%Y-%m-%d') = DATE_FORMAT(SYSDATE(), '%Y-%m-%d')
+    </insert>
+
+    <update id="updateTXqParkingSpace" parameterType="TXqParkingSpace">
+        update t_xq_parking_space
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="floorId != null ">floor_id = #{floorId},</if>
+            <if test="parkingFee != null ">parking_fee = #{parkingFee},</if>
+            <if test="parkingNum != null ">parking_num = #{parkingNum},</if>
+            <if test="startTime != null ">start_time = #{startTime},</if>
+            <if test="endTime != null ">end_time = #{endTime},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTXqParkingSpaceById" parameterType="Long">
+        delete from t_xq_parking_space where id = #{id}
+    </delete>
+
+    <delete id="deleteTXqParkingSpaceByIds" parameterType="String">
+        delete from t_xq_parking_space where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="checkSpace" parameterType="TXqParkingSpace" resultType="Integer">
+    	select count(1) from t_xq_parking_space where dept_id = #{deptId} and parking_num = #{parkingNum} 
+    	and ( start_time &lt;= SYSDATE() or end_time &gt;= SYSDATE() )
+    </select>
+    
+    <select id="selectDeptIdByFloorId" parameterType="TXqParkingSpace" resultType="Long">
+    	select dept_id from t_xq_floor where floor_id = #{floorId}
+    </select>
+    
+    <!-- 推送 -->
+    <update id="pushSpace" parameterType="Long">
+    	update t_xq_parking_space set state = 2 where id = #{id}
+    </update>
+    
+    <select id="getSomeInfo" parameterType="Long" resultType="pd">
+    	SELECT
+			dept_id,
+			build_num,
+			unit_num,
+			door_num 
+		FROM
+			t_xq_floor 
+		WHERE
+			floor_id = ( SELECT floor_id FROM t_xq_parking_space WHERE id = #{id} )
+    </select>
+    
+    <insert id="savePush" parameterType="pd">
+    	insert into t_xq_push_fee(type, fee, fee_id, dept_id, build_num, unit_num, door_num, start_time, end_time, push_time)
+		values(2, #{fee}, #{id}, #{dept_id}, #{build_num}, #{unit_num}, #{door_num}, #{startTime}, #{endTime}, sysdate())
+    </insert>
+    
+</mapper>

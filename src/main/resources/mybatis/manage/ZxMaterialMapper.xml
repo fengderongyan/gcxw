@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxmaterial.mapper.ZxMaterialMapper">
+    
+    <resultMap type="ZxMaterial" id="ZxMaterialResult">
+        <result property="materialId"    column="material_id"    />
+        <result property="title"    column="title"    />
+        <result property="imgUrl"    column="img_url"    />
+        <result property="type"    column="type"    />
+        <result property="label"    column="label"    />
+        <result property="price"    column="price"    />
+        <result property="unit"    column="unit"    />
+        <result property="materialStoreId"    column="material_store_id"    />
+        <result property="status"    column="status"    />
+        <result property="detail"    column="detail"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <association property="zxMaterialStore" column="material_store_id" javaType="ZxMaterialStore" resultMap="ZxMaterialStoreResult"/>
+        <collection property="zxMaterialImgs" javaType="java.util.List" resultMap="zxMaterialImgResult"/>
+    </resultMap>
+	<resultMap type="ZxMaterialStore" id="ZxMaterialStoreResult">
+		<id property="materialStoreId"    column="material_store_id"    />
+		<result property="storeName"    column="store_name"    />
+		<result property="address"    column="address"    />
+		<result property="lxrName"    column="lxr_name"    />
+		<result property="lxrPhone"    column="lxr_phone"    />
+		<result property="zyfw"    column="zyfw"    />
+	</resultMap>
+	<resultMap type="ZxMaterialImg" id="zxMaterialImgResult">
+		<id property="materialImgId"    column="material_img_id"/>
+		<result property="materialId"    column="material_id"    />
+		<result property="detailImgUrl"    column="detail_img_url"/>
+	</resultMap>
+    <sql id="selectZxMaterialVo">
+        select material_id, title, img_url, type, label, round(price / 100, 2) price, unit, material_store_id, status, detail, create_by, create_time, update_by, update_time 
+          from t_zx_material
+    </sql>
+
+    <select id="selectZxMaterialList" parameterType="ZxMaterial" resultMap="ZxMaterialResult">
+        select a.material_id, a.title, a.img_url, a.type, a.label, round(a.price / 100, 2) price, a.unit, a.material_store_id, a.status, a.create_by, a.create_time, a.update_by, a.update_time,
+        	   b.store_name, b.address, b.lxr_name, b.lxr_phone, b.zyfw 
+          from t_zx_material a left join t_zx_material_store b on a.material_store_id = b.material_store_id
+        <where>  
+            <if test="title != null  and title != ''"> and a.title like concat('%',#{title}, '%')</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="label != null  and label != ''"> and label = #{label}</if>
+            <if test="materialStoreId != null "> and material_store_id = #{materialStoreId}</if>
+        </where>
+        order by a.status desc, a.create_time desc
+    </select>
+    
+    <select id="selectZxMaterialById" parameterType="Long" resultMap="ZxMaterialResult">
+        select a.material_id, a.title, a.img_url, a.type, a.label, round(a.price / 100, 2) price, a.unit, a.material_store_id, a.status, 
+        	a.detail, a.create_by, a.create_time, a.update_by, a.update_time,
+        	b.detail_img_url 
+          from t_zx_material a left join t_zx_material_img b on a.material_id = b.material_id
+        where a.material_id = #{materialId}
+    </select>
+        
+    <insert id="insertZxMaterial" parameterType="ZxMaterial" useGeneratedKeys="true" keyProperty="materialId">
+        insert into t_zx_material
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null  and title != ''">title,</if>
+            <if test="imgUrl != null  and imgUrl != ''">img_url,</if>
+            <if test="type != null  and type != ''">type,</if>
+            <if test="label != null  and label != ''">label,</if>
+            <if test="price != null ">price,</if>
+            <if test="unit != null ">unit,</if>
+            <if test="materialStoreId != null ">material_store_id,</if>
+            <if test="status != null ">status,</if>
+            <if test="detail != null  and detail != ''">detail,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null  and title != ''">#{title},</if>
+            <if test="imgUrl != null  and imgUrl != ''">#{imgUrl},</if>
+            <if test="type != null  and type != ''">#{type},</if>
+            <if test="label != null  and label != ''">#{label},</if>
+            <if test="price != null ">round(#{price} * 100),</if>
+            <if test="unit != null ">#{unit},</if>
+            <if test="materialStoreId != null ">#{materialStoreId},</if>
+            <if test="status != null ">#{status},</if>
+            <if test="detail != null  and detail != ''">#{detail},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxMaterial" parameterType="ZxMaterial">
+        update t_zx_material
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null  and title != ''">title = #{title},</if>
+            <if test="imgUrl != null  and imgUrl != ''">img_url = #{imgUrl},</if>
+            <if test="type != null  and type != ''">type = #{type},</if>
+            <if test="label != null  and label != ''">label = #{label},</if>
+            <if test="price != null ">price = round(#{price} * 100),</if>
+            <if test="unit != null ">unit = #{unit},</if>
+            <if test="materialStoreId != null ">material_store_id = #{materialStoreId},</if>
+            <if test="status != null ">status = #{status},</if>
+            <if test="detail != null  and detail != ''">detail = #{detail},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where material_id = #{materialId}
+    </update>
+
+    <delete id="deleteZxMaterialById" parameterType="Long">
+        delete from t_zx_material where material_id = #{materialId}
+    </delete>
+
+    <delete id="deleteZxMaterialByIds" parameterType="String">
+        delete from t_zx_material where material_id in 
+        <foreach item="materialId" collection="array" open="(" separator="," close=")">
+            #{materialId}
+        </foreach>
+    </delete>
+    
+    <update id="changeStatus" parameterType="Long">
+    	update t_zx_material set status = #{status} where material_id = #{materialId}
+    </update>
+    
+    <delete id="deleteZxMaterialImgs" parameterType="Long">
+    	delete from t_zx_material_img where material_id = #{materialId}
+    </delete>
+    <insert id="insertZxMaterialImgs" parameterType="ZxMaterialImg">
+    	insert into t_zx_material_img
+    		(material_id, detail_img_url)
+    	values
+    		(#{materialId}, #{detailImgUrl})
+    </insert>
+</mapper>

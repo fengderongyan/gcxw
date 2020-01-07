@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.floor.mapper.XqFloorMapper">
+    
+    <resultMap type="XqFloor" id="XqFloorResult">
+        <result property="floorId"    column="floor_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="buildNum"    column="build_num"    />
+        <result property="bulidName"    column="bulid_name"    />
+        <result property="unitNum"    column="unit_num"    />
+        <result property="doorNum"    column="door_num"    />
+        <result property="area"    column="area"    />
+        <result property="doorType"    column="door_type"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectXqFloorVo">
+        select floor_id, dept_id, build_num, bulid_name, unit_num, door_num, area, door_type, create_by, create_time, update_by, update_time from t_xq_floor
+    </sql>
+
+    <select id="selectXqFloorList" parameterType="XqFloor" resultMap="XqFloorResult">
+        select a.floor_id, a.dept_id, d.dept_name, a.build_num, a.bulid_name, unit_num, door_num, area, door_type 
+        from t_xq_floor a
+        left join sys_dept d on a.dept_id = d.dept_id
+        where 1 = 1
+        <if test="deptName != null and deptName != '' "> and d.dept_name like concat('%', #{deptName}, '%')</if>
+        <if test="buildNum != null "> and build_num = #{buildNum}</if>
+        <if test="unitNum != null "> and unit_num = #{unitNum}</if>
+        <if test="deptId != null"> and a.dept_id = #{deptId}</if>
+        ${params.dataScope}
+    </select>
+    
+    <select id="selectXqFloorById" parameterType="Long" resultMap="XqFloorResult">
+        <include refid="selectXqFloorVo"/>
+        where floor_id = #{floorId}
+    </select>
+        
+    <insert id="insertXqFloor" parameterType="XqFloor">
+        insert into t_xq_floor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="floorId != null ">floor_id,</if>
+            <if test="deptId != null ">dept_id,</if>
+            <if test="buildNum != null ">build_num,</if>
+            <if test="bulidName != null  and bulidName != ''">bulid_name,</if>
+            <if test="unitNum != null ">unit_num,</if>
+            <if test="doorNum != null ">door_num,</if>
+            <if test="area != null  and area != ''">area,</if>
+            <if test="doorType != null  and doorType != ''">door_type,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="floorId != null ">#{floorId},</if>
+            <if test="deptId != null ">#{deptId},</if>
+            <if test="buildNum != null ">#{buildNum},</if>
+            <if test="bulidName != null  and bulidName != ''">#{bulidName},</if>
+            <if test="unitNum != null ">#{unitNum},</if>
+            <if test="doorNum != null ">#{doorNum},</if>
+            <if test="area != null  and area != ''">#{area},</if>
+            <if test="doorType != null  and doorType != ''">#{doorType},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateXqFloor" parameterType="XqFloor">
+        update t_xq_floor
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null ">dept_id = #{deptId},</if>
+            <if test="buildNum != null ">build_num = #{buildNum},</if>
+            <if test="bulidName != null  and bulidName != ''">bulid_name = #{bulidName},</if>
+            <if test="unitNum != null ">unit_num = #{unitNum},</if>
+            <if test="doorNum != null ">door_num = #{doorNum},</if>
+            <if test="area != null  and area != ''">area = #{area},</if>
+            <if test="doorType != null  and doorType != ''">door_type = #{doorType},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where floor_id = #{floorId}
+    </update>
+
+    <delete id="deleteXqFloorById" parameterType="Long">
+        delete from t_xq_floor where floor_id = #{floorId}
+    </delete>
+
+    <delete id="deleteXqFloorByIds" parameterType="String">
+        delete from t_xq_floor where floor_id in 
+        <foreach item="floorId" collection="array" open="(" separator="," close=")">
+            #{floorId}
+        </foreach>
+    </delete>
+    <!-- 校验是否有相同户 -->
+    <select id="checkFloor" parameterType="XqFloor" resultType="Integer">
+    	SELECT
+			count( 1 ) 
+		FROM
+			t_xq_floor 
+		WHERE
+			dept_id = #{deptId}
+			AND build_num = #{buildNum} 
+			AND unit_num = #{unitNum}
+			AND door_num = #{doorNum}
+    </select>
+    
+</mapper>

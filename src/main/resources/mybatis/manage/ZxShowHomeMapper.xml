@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.showhome.mapper.ZxShowHomeMapper">
+    
+    <resultMap type="ZxShowHome" id="ZxShowHomeResult">
+        <result property="showHomeId"    column="show_home_id"    />
+        <result property="title"    column="title"    />
+        <result property="type"    column="type"    />
+        <result property="detail"    column="detail"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="buildNum"    column="build_num"    />
+        <result property="unitNum"    column="unit_num"    />
+        <result property="doorNum"    column="door_num"    />
+        <result property="bud"    column="bud"    />
+        <result property="area"    column="area"    />
+        <result property="doorType"    column="door_type"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <collection property="showHomeImgs" javaType="java.util.List" resultMap="showHomeImgResult"/>
+    </resultMap>
+	<resultMap type="ShowHomeImg" id="showHomeImgResult">
+		<id property="showHomeImgId"    column="show_home_img_id"/>
+		<result property="showHomeId"    column="show_home_id"    />
+		<result property="imgUrl"    column="img_url"/>
+	</resultMap>
+    <sql id="selectZxShowHomeVo">
+        select show_home_id, title, type, detail, dept_id, (select dept_name from sys_dept t where t.dept_id = a.dept_id) dept_name,
+         build_num, unit_num, door_num, bud, area, door_type, create_by, create_time, update_by, update_time 
+         from t_zx_show_home a
+    </sql>
+
+    <select id="selectZxShowHomeList" parameterType="ZxShowHome" resultMap="ZxShowHomeResult">
+        <include refid="selectZxShowHomeVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+    </select>
+    
+    <select id="selectZxShowHomeById" parameterType="Long" resultMap="ZxShowHomeResult">
+        select a.show_home_id, a.title, a.type, a.detail, a.dept_id,
+         a.build_num, a.unit_num, a.door_num, a.bud, a.area, a.door_type, a.create_by, a.create_time, a.update_by, a.update_time,
+         b.img_url,b.show_home_img_id
+         from t_zx_show_home a left join t_zx_show_home_img b on a.show_home_id = b.show_home_id
+        where a.show_home_id = #{showHomeId}
+    </select>
+        
+    <insert id="insertZxShowHome" parameterType="ZxShowHome" useGeneratedKeys="true" keyProperty="showHomeId">
+        insert into t_zx_show_home
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null  and title != ''">title,</if>
+            <if test="type != null  and type != ''">type,</if>
+            <if test="detail != null  and detail != ''">detail,</if>
+            <if test="deptId != null ">dept_id,</if>
+            <if test="buildNum != null ">build_num,</if>
+            <if test="unitNum != null ">unit_num,</if>
+            <if test="doorNum != null ">door_num,</if>
+            <if test="bud != null  and bud != ''">bud,</if>
+            <if test="area != null  and area != ''">area,</if>
+            <if test="doorType != null  and doorType != ''">door_type,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null  and title != ''">#{title},</if>
+            <if test="type != null  and type != ''">#{type},</if>
+            <if test="detail != null  and detail != ''">#{detail},</if>
+            <if test="deptId != null ">#{deptId},</if>
+            <if test="buildNum != null ">#{buildNum},</if>
+            <if test="unitNum != null ">#{unitNum},</if>
+            <if test="doorNum != null ">#{doorNum},</if>
+            <if test="bud != null  and bud != ''">#{bud},</if>
+            <if test="area != null  and area != ''">#{area},</if>
+            <if test="doorType != null  and doorType != ''">#{doorType},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxShowHome" parameterType="ZxShowHome">
+        update t_zx_show_home
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null  and title != ''">title = #{title},</if>
+            <if test="type != null  and type != ''">type = #{type},</if>
+            <if test="detail != null  and detail != ''">detail = #{detail},</if>
+            <if test="deptId != null ">dept_id = #{deptId},</if>
+            <if test="buildNum != null ">build_num = #{buildNum},</if>
+            <if test="unitNum != null ">unit_num = #{unitNum},</if>
+            <if test="doorNum != null ">door_num = #{doorNum},</if>
+            <if test="bud != null  and bud != ''">bud = #{bud},</if>
+            <if test="area != null  and area != ''">area = #{area},</if>
+            <if test="doorType != null  and doorType != ''">door_type = #{doorType},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where show_home_id = #{showHomeId}
+    </update>
+
+    <delete id="deleteZxShowHomeById" parameterType="Long">
+        delete from t_zx_show_home where show_home_id = #{showHomeId}
+    </delete>
+
+    <delete id="deleteZxShowHomeByIds" parameterType="String">
+        delete from t_zx_show_home where show_home_id in 
+        <foreach item="showHomeId" collection="array" open="(" separator="," close=")">
+            #{showHomeId}
+        </foreach>
+    </delete>
+    
+    <insert id="insertShowHomeImg" parameterType="ShowHomeImg">
+    	insert into t_zx_show_home_img 
+    		(show_home_id, img_url)
+    	values
+    		(#{showHomeId}, #{imgUrl})
+    </insert>
+	<delete id="deleteShowHomeImgs" parameterType="Long">
+		delete from t_zx_show_home_img where show_home_id = #{showHomeId}
+	</delete>    
+</mapper>

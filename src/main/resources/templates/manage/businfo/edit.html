@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改二手交易管理')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<style type="text/css">
+	.homeImg{
+		width:100%;
+		height: 100px;
+		object-fit: contain;
+	}
+	.homeImgDiv{
+		border: 1px solid;
+		margin: 10px 10px;
+		padding: 0px 0px;
+		text-align:center;
+	}
+</style>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-businfo-edit" th:object="${tEsbusInfo}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否通过</label>
+                <div class="col-sm-8">
+                    <select name="state" class="form-control">
+                         <option value="">下拉处理</option>
+                           <option value="2" th:selected="2==*{state}">通过</option>
+                     </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">类型：</label>
+                <div class="col-sm-8">
+                    <select disabled="disabled" name="type" class="form-control m-b" th:with="type=${@dict.getType('sys_essp_type')}">
+                        <option value="">未选类型</option>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{type}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">标题：</label>
+                <div class="col-sm-8">
+                    <input readonly="readonly" name="title" th:field="*{title}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">介绍：</label>
+                <div class="col-sm-8">
+                    <textarea readonly="readonly" name="introduced" class="form-control">[[*{introduced}]]</textarea>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">发布人小区：</label>
+                <div class="col-sm-8">
+                    <input readonly="readonly" name="presentedDept" th:field="*{presentedDept}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">发布日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input readonly="readonly" name="presentedDate" th:value="${#dates.format(tEsbusInfo.presentedDate, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">发布人联系方式：</label>
+                <div class="col-sm-8">
+                    <input readonly="readonly" name="presentedMobile" th:field="*{presentedMobile}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+            	 <label class="col-sm-3 control-label">banner图：</label>
+            	 <div class="col-sm-8" id="imgDiv" style="height: 320px">
+            	 	<div class="col-sm-3 homeImgDiv" th:each="banner:${bannerList}">
+            	 		<img   th:src="${banner.img_url}" class="homeImg"/>
+            	 	</div>
+            	 </div>
+            </div>
+            <div class="form-group">
+            	 <label class="col-sm-3 control-label">介绍图：</label>
+            	 <div class="col-sm-8" id="imgDiv1" style="height: 320px">
+            	 	<div class="col-sm-3 homeImgDiv" th:each="base1:${baseList}">
+            	 		<img  th:src="${base1.img_url}" class="homeImg"/>
+            	 	</div>
+            	 </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "manage/businfo";
+        $("#form-businfo-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-businfo-edit').serialize());
+            }
+        }
+
+        $("input[name='presentedDate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

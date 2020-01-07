@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxcompany.mapper.ZxCompanyMapper">
+    
+    <resultMap type="ZxCompany" id="ZxCompanyResult">
+        <result property="zxCompanyId"    column="zx_company_id"    />
+        <result property="companyName"    column="company_name"    />
+        <result property="logo"    column="logo"    />
+        <result property="isMain"    column="is_main"    />
+        <result property="address"    column="address"    />
+        <result property="recNum"    column="rec_num"    />
+        <result property="detail"    column="detail"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectZxCompanyVo">
+        select zx_company_id, company_name, logo, is_main, address, rec_num, detail, create_by, create_time, update_by, update_time from t_zx_company
+    </sql>
+
+    <select id="selectZxCompanyList" parameterType="ZxCompany" resultMap="ZxCompanyResult">
+        <include refid="selectZxCompanyVo"/>
+        <where>  
+            <if test="companyName != null  and companyName != ''"> and company_name like concat('%', #{companyName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectZxCompanyById" parameterType="Long" resultMap="ZxCompanyResult">
+        <include refid="selectZxCompanyVo"/>
+        where zx_company_id = #{zxCompanyId}
+    </select>
+        
+    <insert id="insertZxCompany" parameterType="ZxCompany" useGeneratedKeys="true" keyProperty="zxCompanyId">
+        insert into t_zx_company
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyName != null  and companyName != ''">company_name,</if>
+            <if test="logo != null  and logo != ''">logo,</if>
+            <if test="isMain != null ">is_main,</if>
+            <if test="address != null  and address != ''">address,</if>
+            <if test="recNum != null ">rec_num,</if>
+            <if test="detail != null  and detail != ''">detail,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyName != null  and companyName != ''">#{companyName},</if>
+            <if test="logo != null  and logo != ''">#{logo},</if>
+            <if test="isMain != null ">#{isMain},</if>
+            <if test="address != null  and address != ''">#{address},</if>
+            <if test="recNum != null ">#{recNum},</if>
+            <if test="detail != null  and detail != ''">#{detail},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxCompany" parameterType="ZxCompany">
+        update t_zx_company
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyName != null  and companyName != ''">company_name = #{companyName},</if>
+            <if test="logo != null  and logo != ''">logo = #{logo},</if>
+            <if test="isMain != null ">is_main = #{isMain},</if>
+            <if test="address != null  and address != ''">address = #{address},</if>
+            <if test="recNum != null ">rec_num = #{recNum},</if>
+            <if test="detail != null  and detail != ''">detail = #{detail},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where zx_company_id = #{zxCompanyId}
+    </update>
+
+    <delete id="deleteZxCompanyById" parameterType="Long">
+        delete from t_zx_company where zx_company_id = #{zxCompanyId}
+    </delete>
+
+    <delete id="deleteZxCompanyByIds" parameterType="String">
+        delete from t_zx_company where zx_company_id in 
+        <foreach item="zxCompanyId" collection="array" open="(" separator="," close=")">
+            #{zxCompanyId}
+        </foreach>
+    </delete>
+    
+    <update id="changeIsMain" parameterType="ZxCompany">
+    	update t_zx_company set is_main = #{isMain} where zx_company_id = #{zxCompanyId}
+    </update>
+    
+    <select id="selectSelectedXqList" parameterType="Long" resultType="pd">
+    	select b.dept_id deptId, b.dept_name deptName 
+    	  from t_zx_company_dept a left join sys_dept b on a.dept_id = b.dept_id and b.del_flag = 0 and b.status = 0
+    	 where zx_company_id = #{zxCompanyId}
+    </select>
+    
+    <delete id="deleteCompanyDept" parameterType="pd">
+    	delete from t_zx_company_dept 
+    	 where dept_id in
+    	 <foreach collection="xqList" item="dept" open="(" close=")" separator=",">
+    	 	#{dept.deptId}
+    	 </foreach>
+    	  and zx_company_id = #{zxCompanyId}
+    </delete>
+    
+    <insert id="saveXq" parameterType="pd">
+    	insert into t_zx_company_dept
+    		(zx_company_id, dept_id)
+    	values
+    	<foreach collection="deptIds" item="deptId" separator=",">
+    		(#{zxCompanyId}, #{deptId})
+    	</foreach>
+    </insert>
+    
+    <select id="checkXqExists" parameterType="Long" resultType="int">
+    	select case when count(1) >= 1 then 1 else 0 end cnt from t_zx_company_dept where zx_company_id = #{zxCompanyId}
+    </select>
+</mapper>

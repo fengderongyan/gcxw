@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.zxforum.mapper.ZxForumMapper">
+    
+    <resultMap type="ZxForum" id="ZxForumResult">
+        <result property="forumId"    column="forum_id"    />
+        <result property="openid"    column="openid"    />
+        <result property="headImg"    column="head_img"    />
+        <result property="nickname"    column="nickname"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="readNum"    column="read_num"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <collection property="forumImgs" javaType="java.util.List" resultMap="zxForumImgResult"/>
+    </resultMap>
+    
+    <resultMap type="ZxForumImg" id="zxForumImgResult">
+		<id property="forumImgId"    column="forum_img_id"/>
+		<result property="forumId"    column="forum_id"    />
+		<result property="imgUrl"    column="img_url"/>
+	</resultMap>
+
+    <sql id="selectZxForumVo">
+        select forum_id, openid, head_img, nickname, title, content, read_num, create_time, status, remark from t_zx_forum
+    </sql>
+
+    <select id="selectZxForumList" parameterType="ZxForum" resultMap="ZxForumResult">
+        <include refid="selectZxForumVo"/>
+        <where>  
+            <if test="nickname != null  and nickname != ''"> and nickname like concat('%', #{nickname}, '%')</if>
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="status != null"> and status = #{status}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+				and date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+			</if>
+			<if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+				and date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+			</if>
+        </where>
+        order by status, create_time desc
+    </select>
+    
+    <select id="selectZxForumById" parameterType="Long" resultMap="ZxForumResult">
+        select a.forum_id, a.openid, a.head_img, a.nickname, a.title, a.content, a.read_num, a.create_time, a.status, a.remark,
+        		b.img_url 
+          from t_zx_forum a left join t_zx_forum_img b on a.forum_id = b.forum_id
+        where a.forum_id = #{forumId}
+    </select>
+        
+    <insert id="insertZxForum" parameterType="ZxForum" useGeneratedKeys="true" keyProperty="forumId">
+        insert into t_zx_forum
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="openid != null ">openid,</if>
+            <if test="headImg != null  and headImg != ''">head_img,</if>
+            <if test="nickname != null  and nickname != ''">nickname,</if>
+            <if test="title != null  and title != ''">title,</if>
+            <if test="content != null  and content != ''">content,</if>
+            <if test="readNum != null ">read_num,</if>
+            <if test="createTime != null ">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="openid != null ">#{openid},</if>
+            <if test="headImg != null  and headImg != ''">#{headImg},</if>
+            <if test="nickname != null  and nickname != ''">#{nickname},</if>
+            <if test="title != null  and title != ''">#{title},</if>
+            <if test="content != null  and content != ''">#{content},</if>
+            <if test="readNum != null ">#{readNum},</if>
+            <if test="createTime != null ">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateZxForum" parameterType="ZxForum">
+        update t_zx_forum
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null and remark != '' ">remark = #{remark},</if>
+        </trim>
+        where forum_id = #{forumId}
+          and status = 0
+    </update>
+
+    <delete id="deleteZxForumById" parameterType="Long">
+        delete from t_zx_forum where forum_id = #{forumId}
+    </delete>
+
+    <delete id="deleteZxForumByIds" parameterType="String">
+        delete from t_zx_forum where forum_id in 
+        <foreach item="forumId" collection="array" open="(" separator="," close=")">
+            #{forumId}
+        </foreach>
+    </delete>
+    
+</mapper>

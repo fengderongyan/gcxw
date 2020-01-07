@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改业主缴费')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-fee-edit" th:object="${tXqPushFee}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">类型</label>
+                <div class="col-sm-8">
+                    <select name="type" class="form-control m-b" >
+                        <option value="">所有</option>
+                        <option value="1" th:selected="*{type}==1">物业费</option>
+                        <option value="2" th:selected="*{type}==2">停车费</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">费用：</label>
+                <div class="col-sm-8">
+                    <input name="fee" th:field="*{fee}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">小区：</label>
+                <div class="col-sm-8">
+                    <input name="deptId" th:field="*{deptId}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">楼栋号：</label>
+                <div class="col-sm-8">
+                    <input name="buildNum" th:field="*{buildNum}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">单元号：</label>
+                <div class="col-sm-8">
+                    <input name="unitNum" th:field="*{unitNum}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">门牌号：</label>
+                <div class="col-sm-8">
+                    <input name="doorNum" th:field="*{doorNum}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">费用生效时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="startTime" th:value="${#dates.format(tXqPushFee.startTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">费用结束时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="endTime" th:value="${#dates.format(tXqPushFee.endTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">推送时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="pushTime" th:value="${#dates.format(tXqPushFee.pushTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">订单号：</label>
+                <div class="col-sm-8">
+                    <input name="outTradeNo" th:field="*{outTradeNo}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">实付款：</label>
+                <div class="col-sm-8">
+                    <input name="totalFee" th:field="*{totalFee}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">支付完成时间：</label>
+                <div class="col-sm-8">
+                    <input name="timeEnd" th:field="*{timeEnd}" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "manage/fee";
+        $("#form-fee-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-fee-edit').serialize());
+            }
+        }
+
+        $("input[name='startTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

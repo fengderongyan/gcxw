@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增设计师管理')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-zxdesigner-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><button type="button" class="btn btn-success btn-sm" id="imgBtn">上传头像：</button></label>
+                <div class="col-sm-8">
+                	<img id="img" height="70px">
+                    <input class="form-control" type="hidden" name="headImg" id="headImg"/>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">姓名：</label>
+                <div class="col-sm-8">
+                    <input name="name" class="form-control" type="text" required>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">装修公司：</label>
+                <div class="col-sm-8">
+                	<select name="zxCompanyId" class="form-control m-b" required>
+                		<option value="">请选择</option>
+                        <option th:each="zxCompany : ${zxCompanys}" th:text="${zxCompany.companyName}" th:value="${zxCompany.zxCompanyId}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">工作年限：</label>
+                <div class="col-sm-8">
+                    <input name="workYear" class="form-control" type="text" required>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">性别：</label>
+                <div class="col-sm-8">
+                    <div class="radio-box" th:each="dict : ${@dict.getType('t_sex')}">
+                        <input type="radio" th:id="${dict.dictCode}" name="sex" th:value="${dict.dictValue}" th:checked="${dict.default}">
+                        <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">推荐理由：</label>
+                <div class="col-sm-8">
+                    <textarea name="recReason" class="form-control" required></textarea>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">职位：</label>
+                <div class="col-sm-8">
+                    <input name="position" class="form-control" type="text" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">介绍：</label>
+                <div class="col-sm-8">
+                    <textarea name="detail" id="detail" class="form-control" style="width: 100%;height: 100%" required></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: layui-js-css" />
+    <th:block th:include="include :: kindeditor" />
+    <script type="text/javascript">
+        var prefix = ctx + "manage/zxdesigner"
+        $("#form-zxdesigner-add").validate({
+            focusCleanup: true
+        });
+         //富文本
+	    var ke = KindEditor.create('#detail',{
+			urlType:"domain", //带域名的绝对路径
+			filePostName  : "file",
+			items:itemsWithImg,
+			//指定上传文件请求的url。上传成功后需回传error与url
+			uploadJson : ctx + "common/upload",
+			height: '360px',
+			//上传类型，分别为image、flash、media、file
+			dir : "image",
+			afterChange: function() {
+		        this.sync();
+		    },
+		    afterBlur: function() {
+		        this.sync();
+		    }
+		});
+        layui.use('upload', function(){
+        	var upload = layui.upload;
+        	upload.render({
+			    elem: '#imgBtn'
+			    ,url: ctx + "common/upload"
+			    ,size: 10240
+			    ,accept: 'images'
+			    ,acceptMime:'image/*'
+			    ,before: function(){$.modal.loading("上传中")}
+			    ,done: function(res){
+			      if(res.code == 0){//如果上传成功
+			        $.modal.closeLoading();
+			    	$('#img').attr('src', res.url);
+			      	$('#headImg').val(res.url);
+			      }else{ //如果上传失败
+			      	$.modal.closeLoading();
+			      	$.modal.alertWarning("图片上传失败。");
+			      }
+			    }
+			    ,error:function(){
+			    	$.modal.closeLoading();
+			    	$.modal.alertWarning("图片上传失败。");
+			    }
+			});
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-zxdesigner-add').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

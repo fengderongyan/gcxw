@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mobile.weixin.mapper.ZxMapper">
+    
+   <select id="selectBannerVideo" parameterType="Long" resultType="pd">
+    	select a.zx_banner_video_id, a.title_img_url, a.title, a.video_url, a.video_time,a.detail
+          from t_zx_banner_video a left join t_zx_banner_video_dept b on a.zx_banner_video_id = b.zx_banner_video_id 
+         where a.flag_del = 0
+         and b.dept_id = #{nowDeptId}
+    	 and a.status = 1
+    	order by a.create_time desc limit 1
+    </select>
+    
+    <select id="selectBannerImgs" parameterType="pd" resultType="pd">
+    	select a.zx_banner_img_id, a.title_img_url, a.title
+    	  from t_zx_banner_img a, t_zx_banner_img_dept b 
+    	where a.zx_banner_img_id = b.zx_banner_img_id
+    	  and b.dept_id =  #{nowDeptId}
+    	  and a.flag_del = 0
+    	  and a.status = 1
+    	 order by a.create_time desc
+    	limit #{limitNum}
+    </select>
+    
+    <select id="selectRecDesigners" parameterType="Long" resultType="pd">
+    	select a.designer_id, a.head_img,a.name, a.position, b.company_name, rec_reason
+    	  from t_zx_designer a, t_zx_company b, t_zx_company_dept c
+    	 where a.zx_company_id = b.zx_company_id
+    	   and b.zx_company_id = c.zx_company_id
+    	   and c.dept_id = #{nowDeptId}
+    	   and a.status = 1
+    	 order by a.create_time desc
+    	 limit 2
+    </select>
+    
+    <select id="selectRecCompanys" parameterType="Long" resultType="pd">
+    	select a.zx_company_id, a.company_name, a.logo, rec_num
+    	  from t_zx_company a, t_zx_company_dept b
+    	 where a.zx_company_id = b.zx_company_id
+    	   and b.dept_id = #{nowDeptId}
+    	   and is_main = 1
+    	 order by a.create_time desc
+    	 limit 4
+    </select>
+    
+    <select id="selectBannerImg" parameterType="Long" resultType="pd">
+    	select a.zx_banner_img_id, a.title_img_url, a.title, a.detail
+    	  from t_zx_banner_img a
+    	 where a.zx_banner_img_id = #{zx_banner_img_id}
+    </select>
+    
+    <select id="selectDesignerList" parameterType="pd" resultType="pd">
+    	select a.designer_id, a.head_img, a.name, a.position, b.company_name, rec_reason
+    	  from t_zx_designer a, t_zx_company b, t_zx_company_dept c
+    	 where a.zx_company_id = b.zx_company_id
+    	   and b.zx_company_id = c.zx_company_id
+    	   and c.dept_id = #{nowDeptId}
+    	 order by a.create_time desc 
+    </select>
+    
+    <select id="selectDesigner" parameterType="pd" resultType="pd">
+    	select a.designer_id, a.head_img, a.name, a.position, a.zx_company_id, b.company_name, a.rec_reason, a.detail,a.work_year,a.sex
+    	  from t_zx_designer a, t_zx_company b
+    	 where a.zx_company_id = b.zx_company_id
+    	   and a.designer_id = #{designer_id}
+    </select>
+    
+    <select id="selectCompanyList" parameterType="pd" resultType="pd">
+    	select a.zx_company_id, a.company_name, a.logo, rec_num
+    	  from t_zx_company a, t_zx_company_dept b
+    	 where a.zx_company_id = b.zx_company_id
+    	   and b.dept_id = #{nowDeptId}
+    	 order by a.create_time desc
+    </select>
+    <select id="selectCompany" parameterType="pd" resultType="pd">
+    	select a.zx_company_id, a.company_name, a.logo,a.address, a.rec_num,a.detail
+    	  from t_zx_company a
+    	 where a.zx_company_id = #{zx_company_id}
+    </select>
+    
+    <select id="selectRecMaterials" parameterType="pd" resultType="pd">
+    	select a.material_id, a.img_url,a.title, a.type, (select t.dict_label from sys_dict_data t where t.dict_type = 't_material_type' and a.type = t.dict_value) type_name,
+    		   a.label, (select t.dict_label from sys_dict_data t where t.dict_type = 't_material_label' and a.label = t.dict_value) label_name,
+    		   a.price, a.unit
+    	  from t_zx_material a, t_zx_material_store b, t_zx_material_store_dept c
+    	 where a.material_store_id = b.material_store_id
+    	   and b.material_store_id = c.material_store_id
+    	   and c.dept_id = #{deptId}
+    	   and a.status = 1
+    	 order by a.create_time desc
+    </select>
+    
+    <select id="selectMaterial" parameterType="pd" resultType="pd">
+    	select a.material_id, a.img_url, a.title, a.type, (select t.dict_label from sys_dict_data t where t.dict_type = 't_material_type' and a.type = t.dict_value) type_name,
+    		   a.label, (select t.dict_label from sys_dict_data t where t.dict_type = 't_material_label' and a.label = t.dict_value) label_name,
+    		   round(a.price / 100, 2) price, a.unit, a.detail, b.store_name, b.address, b.lxr_name, b.lxr_phone, b.zyfw, b.detail store_detail
+    	  from t_zx_material a, t_zx_material_store b
+    	 where a.material_store_id = b.material_store_id
+    	   and a.material_id = #{material_id}
+    </select>
+    <select id="selectMaterialImgs" parameterType="pd" resultType="pd">
+    	select detail_img_url from t_zx_material_img where material_id = #{material_id}
+    </select>
+    
+    <select id="selectXqVr" parameterType="pd" resultType="pd">
+    	select vr_url from t_xq_vr where dept_id = #{dept_id}
+    </select>
+    
+    <select id="selectShowHomeList" parameterType="pd" resultType="pd">
+    	select a.show_home_id, a.title, a.title,a.type, (select t.dict_label from sys_dict_data t where t.dict_type = 't_zx_showhome_type' and a.type = t.dict_value) type_name,
+    		   a.dept_id, b.dept_name, a.bud, a.area, a.door_type
+          from t_zx_show_home a, sys_dept b
+         where a.dept_id = b.dept_id
+         <if test="type != null and type != ''">
+         	and a.type = #{type}
+         </if>
+    </select>
+    
+    <select id="selectTypes" parameterType="pd" resultType="pd">
+    	select dict_value type, dict_label type_name from sys_dict_data where dict_type = 't_zx_showhome_type' order by dict_sort
+    </select>
+    
+    <select id="selectShowHomeByType" parameterType="pd" resultType="pd">
+    	select a.show_home_id, a.title, a.title, a.dept_id, b.dept_name, a.bud, a.area, a.door_type
+          from t_zx_show_home a, sys_dept b
+         where a.dept_id = b.dept_id
+           and a.type = #{type}
+          order by a.create_time desc
+         limit 1
+    </select>
+    <select id="selectShowHomeImgs" parameterType="pd" resultType="pd">
+    	select img_url from t_zx_show_home_img where show_home_id = #{show_home_id}
+    </select>
+    <select id="selectShowHome" parameterType="pd" resultType="pd">
+    	select a.show_home_id, a.title, a.title,a.type, (select t.dict_label from sys_dict_data t where t.dict_type = 't_zx_showhome_type' and a.type = t.dict_value) type_name,
+    		   a.dept_id, b.dept_name, a.bud, a.area, a.door_type,a.detail,a.create_time
+          from t_zx_show_home a, sys_dept b
+         where a.dept_id = b.dept_id
+           and a.show_home_id = #{show_home_id}
+    </select>
+    
+    <select id="selectBannerVideoList" parameterType="pd" resultType="pd">
+    	select a.zx_banner_video_id, a.title_img_url, a.title, a.video_url, a.video_time, a.detail
+          from t_zx_banner_video a left join t_zx_banner_video_dept b on a.zx_banner_video_id = b.zx_banner_video_id
+         where a.flag_del = 0
+           and b.dept_id = #{dept_id}
+    	order by a.create_time desc
+    </select>
+    <select id="selectForumList" parameterType="pd" resultType="pd">
+    	select a.forum_id, a.head_img, a.nickname, a.title, a.content, a.read_num, a.create_time,
+    		   (select count(1) from t_forum_reply t where a.forum_id = t.forum_id) reply_cnt,
+    		   (select count(1) from t_my_collection t where a.forum_id = t.forum_id) collection_cnt,
+    		   case when openid = #{openid} then 1 else 0 end is_delete
+    	  from t_zx_forum a
+        where status = 1
+        order by create_time desc
+    </select>
+    <select id="selectForumImgs" parameterType="pd" resultType="pd">
+    	select img_url from t_zx_forum_img where forum_id = #{forum_id}
+    </select>
+    
+    <insert id="insertForm" parameterType="pd" useGeneratedKeys="true" keyProperty="forum_id">
+    	insert into t_zx_forum
+    		(head_img, nickname, title, content, openid, create_time)
+    	values
+    		(#{head_img}, #{nickname}, #{title}, #{content}, #{openid}, sysdate())
+    </insert>
+    <insert id="insertFormImg" parameterType="pd">
+    	insert into t_zx_forum_img
+    		(forum_id, img_url)
+    	values
+    		(#{forum_id}, #{img_url})
+    </insert>
+    <select id="selectForum" parameterType="pd" resultType="pd">
+    	select a.forum_id, a.head_img, a.nickname, a.title, a.content, a.read_num, a.create_time,
+    		   (select count(1) from t_forum_reply t where a.forum_id = t.forum_id) reply_cnt,
+    		   (select count(1) from t_my_collection t where a.forum_id = t.forum_id) collection_cnt,
+    		   case when openid = #{openid} then 1 else 0 end is_delete
+    	  from t_zx_forum a
+        where forum_id = #{forum_id}
+    </select>
+    <select id="selectReplyList" parameterType="pd" resultType="pd">
+    	select forum_reply_id,
+    		   forum_id, 
+    		   reply_head_img, 
+    		   reply_nickname, 
+    		   reply_content, 
+    		   create_time,
+    		   case when reply_openid = #{openid} then 1 else 0 end is_delete
+    	  from t_forum_reply
+    	 where forum_id = #{forum_id}
+    </select>
+    
+    <delete id="deleteForum" parameterType="pd">
+    	delete from t_zx_forum where forum_id = #{forum_id}
+    </delete>
+    
+    <insert id="replyForum" parameterType="pd">
+    	insert into t_forum_reply 
+    		(forum_id, reply_openid, reply_head_img, reply_nickname, reply_content, create_time)
+    	values
+    		(#{forum_id}, #{reply_openid}, #{reply_head_img}, #{reply_nickname}, #{reply_content}, sysdate())
+    </insert>
+    <delete id="deleteReply" parameterType="pd">
+    	delete from t_forum_reply where forum_reply_id = #{forum_reply_id}
+    </delete>
+    <select id="selectIsCollection" parameterType="pd" resultType="pd">
+    	select case when count(1) &gt;= 1 then 1 else 0 end is_collect 
+    	  from t_my_collection 
+    	 where forum_id = #{forum_id}
+    	   and openid = #{openid}
+    </select>
+    <insert id="collectForum" parameterType="pd">
+    	insert into t_my_collection
+    		(openid, forum_id, forum_title, create_time)
+    	values
+    		(#{openid}, #{forum_id}, #{forum_title}, sysdate())
+    </insert>
+    <delete id="deleteCollection" parameterType="pd">
+    	delete from t_my_collection where forum_id = #{forum_id} and openid = #{openid}
+    </delete>
+    <select id="selectCaseList" parameterType="pd" resultType="pd">
+    	select title, content, img_urls imgUrls from t_zx_case where designer_id = #{designer_id} order by create_time desc
+    	<if test="isMain == 1">
+    		limit 2
+    	</if>
+    </select>
+    <select id="selectCase" parameterType="pd" resultType="pd">
+    	select title, content, img_urls imgUrls from t_zx_case where case_id = #{case_id}
+    </select>
+    
+    <select id="selectMaterialBanners" parameterType="pd" resultType="pd">
+    	select a.material_banner_id, a.title_img_url, a.title
+    	  from t_zx_material_banner a, t_zx_material_banner_dept b 
+    	where a.material_banner_id = b.material_banner_id
+    	  and b.dept_id =  #{deptId}
+    	  and a.status = 1
+    	 order by a.create_time desc
+    	limit 5
+    </select>
+    <select id="selectMaterialBannerDetail" parameterType="pd" resultType="pd">
+    	select material_banner_id, title_img_url, title, detail, create_time from t_zx_material_banner
+    	 where material_banner_id = #{material_banner_id}
+    </select>
+    
+    <select id="selectMaterialList" parameterType="pd" resultType="pd">
+    	select a.material_id, a.img_url,a.title, a.type, (select t.dict_label from sys_dict_data t where t.dict_type = 't_material_type' and a.type = t.dict_value) type_name,
+    		   a.label, (select t.dict_label from sys_dict_data t where t.dict_type = 't_material_label' and a.label = t.dict_value) label_name,
+    		   a.price, a.unit
+    	  from t_zx_material a, t_zx_material_store b, t_zx_material_store_dept c
+    	 where a.material_store_id = b.material_store_id
+    	   and b.material_store_id = c.material_store_id
+    	   and c.dept_id = #{deptId}
+    	 <if test="type != null and type != ''">
+    	 	and a.type = #{type}
+    	 </if>
+    	 order by a.create_time desc
+    </select>
+</mapper>

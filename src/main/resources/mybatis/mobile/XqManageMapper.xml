@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.mobile.weixin.mapper.XqManageMapper">
+    
+    <!-- 获取所有小区 -->
+    <select id="getXqList" resultType="pd">
+    	SELECT
+			dept_id, dept_name
+		FROM
+			sys_dept d 
+		WHERE
+			d.del_flag = '0' 
+			AND d.STATUS = 0 
+			AND LENGTH( d.ancestors ) - LENGTH( REPLACE ( d.ancestors, ',', '' ) ) = 2 
+		ORDER BY
+			d.dept_name
+    </select>
+    <!-- 获取楼栋列表 -->
+    <select id="getFloorList" parameterType="pd" resultType="pd">
+    	select build_num from t_xq_floor where dept_id = #{deptId} order by build_num
+    </select>
+    <!-- 获取单元列表 -->
+    <select id="getUnitList" parameterType="pd" resultType="pd">
+    	select unit_num from t_xq_floor where dept_id = #{deptId} and build_num = #{buildNum} order by unit_num
+    </select>
+    <!-- 获取门牌列表 -->
+    <select id="getDoorList" parameterType="pd" resultType="pd">
+    	select door_num from t_xq_floor where dept_id = #{deptId} and build_num = #{buildNum} and unit_num = #{unitNum}
+    </select>
+    <!-- 获取通告列表 -->
+    <select id="getNoticeList" parameterType="pd" resultType="pd">
+    	SELECT
+			id,
+			title,
+			IFNULL( read_num, 0 ) read_num,
+			create_date 
+		FROM
+			t_xq_notice 
+		WHERE
+			dept_id = #{deptId}
+		ORDER BY
+			create_date DESC
+    </select>
+    <!-- 获取通告内容 -->
+    <select id="getNoticeInfo" parameterType="pd" resultType="pd">
+    	SELECT
+			id,
+			title,
+			content,
+			IFNULL( read_num, 0 ) read_num,
+			create_date 
+		FROM
+			t_xq_notice 
+		WHERE
+			id = #{id}
+    </select>
+    <!-- 更新阅读数 -->
+    <update id="updateReadNum" parameterType="pd">
+    	UPDATE t_xq_notice 
+		SET read_num = read_num + 1 
+		WHERE
+			id = #{id}
+    </update>
+    <!-- 获取急事速办列表 -->
+    <select id="getJssbList" parameterType="pd" resultType="pd">
+    	SELECT
+			a.id,
+			a.title,
+			a.bus_name, a.bus_mobile,
+			b.dict_label type 
+		FROM
+			t_xq_jssb a,
+			sys_dict_data b 
+		WHERE
+			a.type = b.dict_value 
+			AND b.dict_type = 'sys_jssb_type' 
+			AND b.STATUS = 0 
+			and FIND_IN_SET(#{deptId}, a.dept_id)
+		ORDER BY
+			a.create_time DESC
+    </select>
+    <!-- 急事速办详情 -->
+    <select id="getJssbInfo" parameterType="pd" resultType="pd">
+    	SELECT
+			a.title,
+			a.bus_name,
+			a.bus_mobile,
+			a.content,
+			b.dict_label type 
+		FROM
+			t_xq_jssb a,
+			sys_dict_data b 
+		WHERE
+			a.type = b.dict_value 
+			AND b.dict_type = 'sys_jssb_type' 
+			AND b.STATUS = 0 
+			AND a.id = #{id}
+    </select>
+    <!-- 获取字典类型 -->
+    <select id="getWxTypeList" parameterType="String" resultType="pd">
+    	SELECT
+			dict_label,
+			dict_value 
+		FROM
+			sys_dict_data 
+		WHERE
+			dict_type = #{type}
+			AND STATUS = 0 
+		ORDER BY
+			dict_sort
+    </select>
+    <!-- 提交投诉/建议 -->
+    <insert id="saveTsInfo" parameterType="String">
+    	INSERT INTO t_xq_complaints ( type, content, presented_id, presented_dept, presented_date, state )
+		VALUES
+			( #{type}, #{content}, #{presentedId}, #{presentedDept}, SYSDATE( ), 1  )
+    </insert>
+    <!-- 获取投诉/建议列表 -->
+    <select id="getTsInfoList" parameterType="pd" resultType="pd">
+    	SELECT
+			a.id,
+			a.type,
+			a.presented_date,
+			b.dict_label type_name,
+			a.state
+		FROM
+			t_xq_complaints a, sys_dict_data b
+		WHERE
+			a.presented_id = #{presentedId}
+			and a.type = b.dict_value
+			and b.dict_type = 'sys_ts_type'
+		ORDER BY
+			presented_date DESC
+    </select>
+    <!-- 获取投诉/建议信息 -->
+    <select id="getTsInfo" parameterType="pd" resultType="pd">
+    	SELECT
+			a.id,
+			a.type,
+			a.presented_date,
+			a.content,
+			a.reply,
+			a.reply_date,
+			b.dict_label type_name,
+			a.state
+		FROM
+			t_xq_complaints a, sys_dict_data b
+		WHERE
+			a.id = #{id}
+			and a.type = b.dict_value
+			and b.dict_type = 'sys_ts_type'
+    </select>
+    <!-- 发布二手信息（基本） -->
+    <insert id="saveEsBusInfo" parameterType="pd">
+    	insert into t_esbus_info(uu_id, <if test="type != null and type != '' ">type, </if> title, introduced, presented_id, presented_dept, presented_date, presented_mobile,state)
+		values(#{uuId}, <if test="type != null and type != '' "> #{type}, </if>  #{title}, #{introduced}, #{presentedId}, #{presentedDept}, SYSDATE(), #{presentedMobile}, 1)
+    </insert>
+    <!-- 发布二手信息(顶部图片) -->
+    <insert id="saveEsBusBanner" parameterType="pd">
+    	insert into t_esbus_banner_info (uu_id, img_url)
+		values(#{uuId}, #{imgUrl})
+    </insert>
+    <!-- 发布二手信息(介绍图片) -->
+    <insert id="saveEsBusImg" parameterType="pd">
+    	insert into t_esbus_img_info (uu_id, img_url)
+		values(#{uuId}, #{imgUrl})
+    </insert>
+    <!-- 获取二手商品列表（本小区） -->
+    <select id="getEsBusInfoList" parameterType="pd" resultType="pd">
+    	SELECT
+			a.uu_id id,
+			a.title,
+			a.introduced,
+			b.img_url 
+		FROM
+			t_esbus_info a,
+			( SELECT DISTINCT uu_id, img_url FROM t_esbus_banner_info ) b 
+		WHERE
+			a.uu_id = b.uu_id
+			and a.state = 1
+			and a.presented_dept = #{presentedDept}
+			order by a.presented_date desc
+    </select>
+    <!-- 获取二手商品列表（自己） -->
+    <select id="getEsBusInfoListSelf" parameterType="pd" resultType="pd">
+    	SELECT
+			a.uu_id id,
+			a.title,
+			a.introduced,
+			b.img_url 
+		FROM
+			t_esbus_info a,
+			( SELECT DISTINCT uu_id, img_url FROM t_esbus_banner_info ) b 
+		WHERE
+			a.uu_id = b.uu_id
+			and a.presented_id = #{presentedId}
+			order by a.presented_date desc
+    </select>
+    <!-- 获取二手商品详情 -->
+    <select id="getErBusInfo" parameterType="pd" resultType="pd">
+    	SELECT
+			a.title,
+			a.introduced,
+			a.presented_mobile,
+			a.presented_date,
+			d.name presented_name,
+			GROUP_CONCAT( b.img_url ) banner,
+			GROUP_CONCAT( c.img_url ) imgs
+		FROM
+			t_esbus_info a,
+			t_esbus_banner_info b,
+			t_esbus_img_info c,
+			t_wxuser d
+		WHERE
+			a.uu_id = b.uu_id 
+			AND a.uu_id = c.uu_id 
+			and a.presented_id = d.openid
+			AND a.presented_id = #{id}
+    </select>
+    <!-- 报修信息保存 -->
+    <insert id="saveBxInfo" parameterType="pd" >
+    	insert into t_xq_bx_info (type, appointment, introduced, presented_id, presented_dept, presented_date, presented_mobile, state)
+		values(#{type}, STR_TO_DATE(#{appointment},'%Y-%m-%d %H:%i'), #{introduced}, #{presentedId}, #{presentedDept}, SYSDATE(), #{presentedMobile}, 1)
+    </insert>
+    <!-- 获取符合条件的推送人 -->
+    <select id="getTsOpenids" parameterType="pd" resultType="String">
+    	select GROUP_CONCAT(openid) openid from t_gzh_user where FIND_IN_SET(#{presentedDept},wx_dept) and FIND_IN_SET(#{type},wx_type)
+    </select>
+    <!-- 获取我的报修列表 -->
+    <select id="getMyBxInfoList" parameterType="pd" resultType="pd">
+    	SELECT
+			a.id,
+			a.appointment,
+			b.dict_label type,
+			a.presented_date,
+			a.state 
+		FROM
+			t_xq_bx_info a,
+			sys_dict_data b 
+		WHERE
+			a.type = b.dict_value 
+			AND b.dict_type = 'sys_wx_type' 
+			AND a.presented_id = #{presentedId}
+		order by a.presented_date desc
+    </select>
+    <!-- 获取报修详情 -->
+    <select id="getBxInfo"  parameterType="pd" resultType="pd">
+    	SELECT
+			a.id,
+			DATE_FORMAT(a.appointment,'%Y-%m-%d %H:%i') appointment,
+			a.introduced,
+			a.additional,
+			b.dict_label type_name,
+			a.type,
+			a.presented_date,
+			a.state 
+		FROM
+			t_xq_bx_info a,
+			sys_dict_data b 
+		WHERE
+			a.type = b.dict_value 
+			AND b.dict_type = 'sys_wx_type' 
+			AND a.id = #{id}
+    </select>
+    <!-- 报修信息结束 -->
+    <update id="endBxInfo" parameterType="pd">
+    	update t_xq_bx_info set state = 3 where id = #{id}
+    </update>
+    <update id="appendBxInfo" parameterType="pd">
+    	update t_xq_bx_info set additional = #{additional} where id = #{id}
+    </update>
+    <!-- 获取相关楼栋信息 -->
+    <select id="getSomeInfo" parameterType="String" resultType="pd">
+    	select dept_id, build_num, unit_num, door_num from  t_wxuser_floor where is_bind = 1 and openid = #{openId}
+    </select>
+    <!-- 获取待付款列表 -->
+    <select id="getMyWaitFeeList"  parameterType="pd" resultType="pd">
+    	select a.id, a.type, round(a.fee / 100, 2) fee, a.start_time, a.end_time from t_xq_push_fee a, t_xq_property b
+		where a.type = 1 and a.fee_id = b.id 
+		and a.dept_id = #{dept_id} and a.build_num = #{build_num} and a.unit_num = #{unit_num} and a.door_num = #{door_num}
+		and b.state = 2
+		union
+		select a.id, a.type, round(a.fee / 100, 2) fee, a.start_time, a.end_time from t_xq_push_fee a, t_xq_parking_space b
+		where a.type = 2 and a.fee_id = b.id
+		and a.dept_id = #{dept_id} and a.build_num = #{build_num} and a.unit_num = #{unit_num} and a.door_num = #{door_num}
+		and b.state = 2
+    </select>
+    <!-- 获取物业费详情 -->
+    <select id="getFeeBaseInfo" parameterType="pd" resultType="pd">
+    	SELECT
+			a.id,
+			a.type,
+			round( a.fee / 100, 2 ) fee,
+			a.start_time,
+			a.end_time 
+		FROM
+			t_xq_push_fee a 
+		WHERE
+		id = #{id}
+    </select>
+    <!-- 获取物业费明细 -->
+    <select id="getFeeDetail"  parameterType="pd" resultType="pd">
+    	SELECT
+			detail_name,
+			round( detail_fee / 100, 2 ) detail_fee,
+			remark 
+		FROM
+			t_xq_property_detail 
+		WHERE
+		property = #{id}
+    </select>
+    <!-- 更新商户订单号 -->
+    <update id="updateOutTradeNo" parameterType="pd">
+    	update t_xq_push_fee set out_trade_no = #{outTradeNo} where id = #{id}
+    </update>
+    <!-- 更新订单成功相关信息 -->
+    <update id="updatePayStateInfo" parameterType="pd">
+    	UPDATE t_xq_push_fee 
+		SET total_fee = #{total_fee},
+		time_end = #{time_end}
+		WHERE
+			out_trade_no = #{out_trade_no}
+    </update>
+    <!-- 获取订单成功相关信息 -->
+    <select id="getPayInfo"  parameterType="pd" resultType="pd">
+    	select type, fee_id, out_trade_no from t_xq_push_fee where out_trade_no = #{out_trade_no}
+    </select>
+    <!-- 更新物业费状态 -->
+    <update id="updatePayState" parameterType="pd">
+    	update t_xq_property set state = 3, update_time = SYSDATE() where id = #{fee_id}
+    </update>
+    <!-- 更新停车费状态 -->
+    <update id="updatePayState1" parameterType="pd">
+    	update t_xq_parking_space set state = 3, update_time = SYSDATE() where id = #{fee_id}
+    </update>
+    <!-- 获取付款列表 -->
+    <select id="getMyPayFeeList"  parameterType="pd" resultType="pd">
+    	SELECT
+			id,
+			type,
+			ROUND( fee / 100, 2 ) fee,
+			start_time,
+			end_time,
+			out_trade_no,
+			time_end 
+		FROM
+			t_xq_push_fee 
+		WHERE
+			dept_id = #{deptId} 
+			AND build_num = #{buildNum} 
+			AND unti_num = #{unitNum}
+			AND door_num = #{doorNum}
+			and time_end is not null
+    </select>
+</mapper>

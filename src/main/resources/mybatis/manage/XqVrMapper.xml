@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.xqvr.mapper.XqVrMapper">
+    
+    <resultMap type="XqVr" id="XqVrResult">
+        <result property="xqVrId"    column="xq_vr_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="vrUrl"    column="vr_url"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <association property="dept" column="dept_id" javaType="Dept" resultMap="deptResult"/>
+    </resultMap>
+    
+    <resultMap type="Dept" id="deptResult">
+    	<id property="deptId" column="dept_id"/>
+    	<result property="deptName" column="dept_name"/>
+    </resultMap>
+
+    <sql id="selectXqVrVo">
+        select xq_vr_id, dept_id, vr_url, create_by, create_time, update_by, update_time from t_xq_vr
+    </sql>
+
+    <select id="selectXqVrList" parameterType="XqVr" resultMap="XqVrResult">
+        select a.xq_vr_id, a.dept_id, a.vr_url, a.create_by, a.create_time, a.update_by, a.update_time, b.dept_name 
+          from t_xq_vr a
+          left join sys_dept b on a.dept_id = b.dept_id and b.del_flag = 0 and b.status = 0
+        <if test="deptId != null "> and dept_id = #{deptId}</if>
+        order by create_time desc
+    </select>
+    
+    <select id="selectXqVrById" parameterType="Long" resultMap="XqVrResult">
+        <include refid="selectXqVrVo"/>
+        where xq_vr_id = #{xqVrId}
+    </select>
+        
+    <insert id="insertXqVr" parameterType="XqVr" useGeneratedKeys="true" keyProperty="xqVrId">
+        insert into t_xq_vr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deptId != null ">dept_id,</if>
+            <if test="vrUrl != null  and vrUrl != ''">vr_url,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deptId != null ">#{deptId},</if>
+            <if test="vrUrl != null  and vrUrl != ''">#{vrUrl},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateXqVr" parameterType="XqVr">
+        update t_xq_vr
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null ">dept_id = #{deptId},</if>
+            <if test="vrUrl != null  and vrUrl != ''">vr_url = #{vrUrl},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+        </trim>
+        where xq_vr_id = #{xqVrId}
+    </update>
+
+    <delete id="deleteXqVrById" parameterType="Long">
+        delete from t_xq_vr where xq_vr_id = #{xqVrId}
+    </delete>
+
+    <delete id="deleteXqVrByIds" parameterType="String">
+        delete from t_xq_vr where xq_vr_id in 
+        <foreach item="xqVrId" collection="array" open="(" separator="," close=")">
+            #{xqVrId}
+        </foreach>
+    </delete>
+    
+    <select id="checkDeptExists" parameterType="XqVr" resultType="Integer">
+    	select case when count(1) >= 1 then 1 else 0 end cnt from t_xq_vr where dept_id = #{deptId}
+    	<if test="xqVrId != null">
+    		and xq_vr_id != #{xqVrId}
+    	</if>
+    </select>
+</mapper>
